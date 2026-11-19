@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ThemeMenu from './ThemeMenu';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -98,6 +99,7 @@ export default function Header({ onMenuClick, onSearch }) {
 
         {/* Right Section */}
         <div className="relative flex shrink-0 items-center gap-2 sm:gap-4">
+          <ThemeMenu />
           {/* Write Button */}
           <Link
             to="/create"

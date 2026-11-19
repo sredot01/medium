@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ThemeMenu from '../components/ThemeMenu';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
@@ -65,14 +66,15 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFC017] overflow-hidden">
+    <div className="theme-landing min-h-screen overflow-hidden bg-[#FFC017]">
       {/* Header */}
       <header className="border-b border-black">
-        <div className="max-w-[1192px] mx-auto px-6 py-6 flex items-center justify-between">
-          <Link to="/" className="font-spectral text-3xl font-bold text-black">
+        <div className="max-w-[1192px] mx-auto flex items-center justify-between gap-2 px-3 py-5 sm:px-6 sm:py-6">
+          <Link to="/" className="font-spectral text-2xl font-bold text-black sm:text-3xl">
             Medium
           </Link>
-          <nav className="flex items-center space-x-4">
+          <nav className="flex items-center gap-2 sm:gap-4">
+            <ThemeMenu />
             <button
               onClick={openSignIn}
               className="text-sm font-medium text-black hover:opacity-70 transition-opacity"
@@ -81,7 +83,7 @@ const Landing = () => {
             </button>
             <button
               onClick={openSignUp}
-              className="px-4 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-900 transition-colors"
+              className="whitespace-nowrap rounded-full bg-black px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-900 sm:px-4"
             >
               Get started
             </button>
