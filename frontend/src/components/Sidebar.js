@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen }) {
   return (
     <aside
       className={`
-        fixed left-0 top-[57px] h-[calc(100vh-57px)] w-[240px] 
+        fixed left-0 top-14 h-[calc(100dvh-3.5rem)] w-[240px]
         border-r border-gray-200 bg-white overflow-y-auto z-30
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}

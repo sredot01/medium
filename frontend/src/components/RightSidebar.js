@@ -61,7 +61,7 @@ export default function RightSidebar() {
   };
 
   return (
-    <aside className="fixed right-0 top-[57px] w-[368px] h-[calc(100vh-57px)] overflow-y-auto px-8 py-10 border-l border-gray-200 bg-white">
+    <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-80 shrink-0 self-start overflow-y-auto px-6 py-8 xl:block 2xl:w-[368px] 2xl:px-8 border-l border-gray-200 bg-white">
       {/* Staff Picks */}
       <div className="mb-8">
         <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide mb-4">

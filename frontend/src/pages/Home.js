@@ -15,7 +15,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('for-you');
   const [categories, setCategories] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Redirect to landing if not authenticated
@@ -90,20 +90,20 @@ export default function Home() {
         onSearch={handleSearch}
       />
       
-      <div className="flex relative">
+      <div className="relative flex pt-14">
         {/* Left Sidebar */}
         <Sidebar isOpen={sidebarOpen} />
 
         {/* Main Content - with dynamic margin */}
         <main 
-          className={`flex-1 transition-all duration-300 ${
-            sidebarOpen ? 'ml-[240px]' : 'ml-0'
+          className={`min-w-0 flex-1 transition-[margin] duration-300 ${
+            sidebarOpen ? 'lg:ml-[240px]' : ''
           }`}
         >
-          <div className="max-w-[728px] mx-auto">
+          <div className="mx-auto max-w-[728px] px-4 sm:px-6 lg:px-8">
             {/* Tabs */}
-            <div className="border-b border-gray-200 sticky top-[57px] bg-white z-10">
-              <div className="flex space-x-8 px-6">
+            <div className="border-b border-gray-200 sticky top-14 bg-white z-10">
+              <div className="flex gap-8">
                 <button
                   onClick={() => setSelectedTab('for-you')}
                   className={`py-4 text-sm font-medium border-b-2 transition-colors ${
@@ -129,7 +129,7 @@ export default function Home() {
 
             {/* Search Results Info */}
             {searchQuery && (
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div className="px-4 py-4 border-b border-gray-200 bg-gray-50">
                 <p className="text-sm text-gray-700">
                   {filteredPosts.length > 0 ? (
                     <>
@@ -143,11 +143,11 @@ export default function Home() {
             )}
 
             {/* Posts Feed */}
-            <div className="px-6 py-8">
+            <div className="pb-8 pt-2">
               {loading ? (
                 <div className="text-center py-12 text-gray-500">Loading posts...</div>
               ) : filteredPosts.length > 0 ? (
-                <div className="space-y-8">
+                <div className="space-y-2">
                   {filteredPosts.map((post) => (
                     <BlogCard key={post.id} post={post} />
                   ))}

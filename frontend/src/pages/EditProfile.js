@@ -8,7 +8,7 @@ import Sidebar from '../components/Sidebar';
 export default function EditProfile() {
   const { user, isAuthenticated, loading: authLoading, setUser } = useAuth();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -119,15 +119,15 @@ export default function EditProfile() {
         onSearch={() => {}}
       />
       
-      <div className="flex relative">
+      <div className="relative flex pt-14">
         <Sidebar isOpen={sidebarOpen} />
 
         <main 
-          className={`flex-1 transition-all duration-300 ${
-            sidebarOpen ? 'ml-[240px]' : 'ml-0'
+          className={`min-w-0 flex-1 transition-[margin] duration-300 ${
+            sidebarOpen ? 'lg:ml-[240px]' : ''
           }`}
         >
-          <div className="max-w-3xl mx-auto px-6 py-12">
+          <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -152,13 +152,13 @@ export default function EditProfile() {
             )}
 
             {/* Edit Form */}
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 sm:p-8">
               {/* Profile Photo */}
               <div className="mb-8">
                 <label className="block text-sm font-semibold text-gray-900 mb-4">
                   Profile Photo
                 </label>
-                <div className="flex items-center space-x-6">
+                <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                   {/* Current Avatar */}
                   <div className="relative">
                     {avatarPreview ? (
@@ -250,7 +250,7 @@ export default function EditProfile() {
               </div>
 
               {/* Buttons */}
-              <div className="flex items-center justify-end space-x-4">
+              <div className="flex flex-wrap items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => navigate('/profile')}

@@ -140,8 +140,8 @@ export default function BlogCard({ post }) {
           </p>
 
           {/* Meta */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 text-[13px] text-gray-600">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-gray-600">
               {/* Star for featured */}
               <button
                 onClick={handleFeature}
@@ -216,7 +216,7 @@ export default function BlogCard({ post }) {
         {/* Right: Image */}
         {post.coverImage && post.coverImage.length > 0 && (
           <Link to={`/post/${post.slug}`} className="flex-shrink-0">
-            <div className="w-[112px] h-[112px] bg-gray-100 rounded overflow-hidden">
+            <div className="h-20 w-20 bg-gray-100 sm:h-28 sm:w-28 rounded overflow-hidden">
               <img
                 src={post.coverImage}
                 alt={post.title}
