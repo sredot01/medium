@@ -33,6 +33,7 @@ function App() {
           <Route path="/edit/:id" element={<EditPost />} />
           <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<EditProfile />} />
           <Route path="/profile/edit" element={<EditProfile />} />
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/profile/:userId/followers" element={<Followers />} />
