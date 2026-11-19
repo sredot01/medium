@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Backend Service - Development Mode with Hot Reload
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: techblog-backend-dev
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+    volumes:
+      # Mount source code for hot reload
+      - ./backend:/app
+      - /app/node_modules
+      # Persist database
+      - ./backend/blog.db:/app/blog.db
+    networks:
+      - techblog-network
+    command: npm run dev
+
+  # Frontend Service - Development Mode with Hot Reload
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: techblog-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000/api
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - techblog-network
+    command: npm start
+
+# Networks
+networks:
+  techblog-network:
+    driver: bridge
+

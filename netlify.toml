@@ -1,0 +1,37 @@
+# Netlify configuration for TechBlog Frontend
+
+[build]
+  # Directory with the frontend code
+  base = "frontend"
+  
+  # Build command
+  command = "npm run build"
+  
+  # Output directory
+  publish = "build"
+
+[build.environment]
+  # Node version
+  NODE_VERSION = "18"
+
+# Redirect all routes to index.html for React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"
+
+# Cache static assets
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+

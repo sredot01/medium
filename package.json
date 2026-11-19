@@ -1,0 +1,17 @@
+{
+  "name": "techblog-monorepo",
+  "version": "1.0.0",
+  "description": "Professional blogging platform with React.js frontend and Node.js backend",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "seed": "cd backend && npm run seed",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": ["blog", "react", "nodejs", "express", "sqlite"],
+  "author": "",
+  "license": "ISC"
+}

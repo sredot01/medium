@@ -1,0 +1,25 @@
+{
+  "name": "techblog-medium",
+  "main": "backend/worker.mjs",
+  "compatibility_date": "2026-11-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "minify": true,
+  "alias": { "sql.js": "./backend/cloudflare-no-sqljs.cjs" },
+  "vars": {
+    "NODE_ENV": "production",
+    "APP_ORIGIN": "https://techblog-medium.sredeepak01.workers.dev"
+  },
+  "assets": {
+    "directory": "./frontend/build",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "BLOG", "class_name": "BlogDatabase" }]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["BlogDatabase"] }
+  ]
+}
