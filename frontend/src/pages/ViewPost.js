@@ -1,3 +1,4 @@
+import CommentThread from '../components/CommentThread';
 import { useConfirm } from '../context/ConfirmContext';
 import { useToast } from '../context/ToastContext';
 import DOMPurify from 'dompurify';
@@ -151,7 +152,8 @@ export default function ViewPost() {
     
     try {
       await deleteComment(commentId);
-      setComments(comments.filter(c => c.id !== commentId));
+      await fetchComments(post.id);
+      notify('Comment deleted successfully');
     } catch (error) {
       console.error('Error deleting comment:', error);
       notify('Failed to delete comment', 'error');
@@ -469,46 +471,8 @@ export default function ViewPost() {
               </div>
             </form> : <p className="mb-8 text-sm"><Link className="text-green-600 underline" to="/">Sign in</Link> to respond.</p>}
 
-            {/* Comments List */}
-            <div className="space-y-6">
-              {Array.isArray(comments) && comments.map((comment) => (
-                <div key={comment.id} className="flex items-start space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                    {comment.user?.avatar ? (
-                      <img src={comment.user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
-                    ) : (
-                      comment.user?.name?.trim().charAt(0).toUpperCase() || 'U'
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-semibold text-sm">{comment.user?.name?.trim() || 'Anonymous'}</span>
-                      <span className="text-gray-500 text-xs">·</span>
-                      <span className="text-gray-500 text-xs">{formatDate(comment.createdAt)}</span>
-                    </div>
-                    <p className="text-gray-800 mb-2">{comment.content}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <button className="hover:text-gray-900">Like</button>
-                      <button className="hover:text-gray-900">Reply</button>
-                      {user && comment.userId === user.id && (
-                        <button
-                          onClick={() => handleDeleteComment(comment.id)}
-                          className="hover:text-red-600"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {(!comments || comments.length === 0) && (
-                <p className="text-center text-gray-500 py-8">
-                  No responses yet. Be the first to respond!
-                </p>
-              )}
-            </div>
+            <CommentThread key={post.id} comments={comments} postId={post.id} user={user}
+              reload={fetchComments} onDelete={handleDeleteComment} formatDate={formatDate} />
           </div>
         </article>
         </PostAILayout>

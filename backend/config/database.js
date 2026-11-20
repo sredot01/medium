@@ -221,6 +221,8 @@ async function initializeDatabase(database) {
     db.run(`CREATE INDEX IF NOT EXISTS idx_reads_post ON post_reads(post_id);`);
     db.run(`CREATE INDEX IF NOT EXISTS idx_reads_date ON post_reads(read_at);`);
     
+    require('./socialSchema')(db);
+
     // Save database to disk
     saveDatabase();
     

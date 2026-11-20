@@ -93,3 +93,10 @@ export default api;
 
 export const generatePostDraft = (data) => api.post('/ai/draft', data, { timeout: 95000 });
 export const summarizePost = (data) => api.post('/ai/summary', data, { timeout: 95000 });
+
+export const setCommentLike = (id, liked) => liked
+  ? api.put(`/posts/comments/${id}/like`)
+  : api.delete(`/posts/comments/${id}/like`);
+
+export const getNotifications = options => api.get('/notifications', options);
+export const markNotificationsRead = id => api.put('/notifications/read', id === undefined ? {} : { id });

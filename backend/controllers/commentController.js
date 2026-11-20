@@ -1,4 +1,6 @@
 const Comment = require('../models/Comment');
+const Post = require('../models/Post');
+const { getDB, saveDatabase } = require('../config/database');
 
 // @desc    Create comment
 // @route   POST /api/posts/:postId/comments
@@ -6,17 +8,26 @@ const Comment = require('../models/Comment');
 exports.createComment = (req, res, next) => {
   try {
     const { postId } = req.params;
-    const { content } = req.body;
+    const { content, parentId } = req.body ?? {};
     const userId = req.user.id;
 
-    if (!content || !content.trim()) {
+    if (typeof content !== 'string' || !content.trim() || content.length > 4000) {
       return res.status(400).json({
         success: false,
-        message: 'Comment content is required',
+        message: 'Enter a comment of up to 4,000 characters.',
       });
     }
 
+    if (!Post.findById(postId)) return res.status(404).json({ message: 'Post not found.' });
+    if (parentId != null) {
+      const parent = typeof parentId === 'string' ? Comment.findById(parentId) : null;
+      if (!parent || parent.postId !== postId) {
+        return res.status(400).json({ message: 'This reply must belong to a comment on the same post.' });
+      }
+    }
+
     const comment = Comment.create({
+      parentId,
       userId,
       postId,
       content: content.trim(),
@@ -39,9 +50,10 @@ exports.getPostComments = (req, res, next) => {
   try {
     const { postId } = req.params;
 
-    const comments = Comment.getPostComments(postId);
+    const comments = Comment.getPostComments(postId, req.user?.id);
     const count = Comment.getPostCommentsCount(postId);
 
+    res.set('Cache-Control', 'no-store');
     res.json({
       success: true,
       data: {
@@ -133,3 +145,16 @@ exports.deleteComment = (req, res, next) => {
   }
 };
 
+
+exports.setCommentLike = (req, res) => {
+  const { id } = req.params;
+  if (!Comment.findById(id)) return res.status(404).json({ message: 'Comment not found.' });
+  const db = getDB();
+  if (req.method === 'PUT') {
+    db.run('INSERT OR IGNORE INTO comment_likes VALUES (?, ?, ?)', [id, req.user.id, new Date().toISOString()]);
+  } else {
+    db.run('DELETE FROM comment_likes WHERE comment_id = ? AND user_id = ?', [id, req.user.id]);
+  }
+  saveDatabase();
+  return res.sendStatus(204);
+};

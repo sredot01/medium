@@ -1,16 +1,17 @@
+const { randomUUID } = require('node:crypto');
 const { getDB, saveDatabase } = require('../config/database');
 
 class Comment {
   // Create comment
   static create(data) {
     const db = getDB();
-    const id = Date.now().toString();
+    const id = randomUUID();
     const now = new Date().toISOString();
 
     db.run(`
-      INSERT INTO comments (id, user_id, post_id, content, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `, [id, data.userId, data.postId, data.content, now, now]);
+      INSERT INTO comments (id, user_id, post_id, content, created_at, updated_at, parent_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [id, data.userId, data.postId, data.content, now, now, data.parentId ?? null]);
 
     saveDatabase();
     return Comment.findById(id);
@@ -20,7 +21,8 @@ class Comment {
   static findById(id) {
     const db = getDB();
     const result = db.exec(`
-      SELECT c.*, u.name as user_name, u.avatar as user_avatar
+      SELECT c.id, c.user_id, c.post_id, c.content, c.created_at, c.updated_at, u.name, u.avatar, c.parent_id,
+        (SELECT COUNT(*) FROM comment_likes WHERE comment_id = c.id), 0
       FROM comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.id = ?
@@ -31,15 +33,17 @@ class Comment {
   }
 
   // Get all comments for a post
-  static getPostComments(postId) {
+  static getPostComments(postId, viewerId = null) {
     const db = getDB();
     const result = db.exec(`
-      SELECT c.*, u.name as user_name, u.avatar as user_avatar
+      SELECT c.id, c.user_id, c.post_id, c.content, c.created_at, c.updated_at, u.name, u.avatar, c.parent_id,
+        (SELECT COUNT(*) FROM comment_likes WHERE comment_id = c.id),
+        EXISTS(SELECT 1 FROM comment_likes WHERE comment_id = c.id AND user_id = ?)
       FROM comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.post_id = ?
-      ORDER BY c.created_at DESC
-    `, [postId]);
+      ORDER BY c.created_at DESC, c.id
+    `, [viewerId, postId]);
 
     if (result.length === 0) return [];
     return result[0].values.map(Comment.rowToComment);
@@ -72,6 +76,8 @@ class Comment {
   // Delete comment
   static delete(id) {
     const db = getDB();
+    db.run('UPDATE comments SET parent_id = NULL WHERE parent_id = ?', [id]);
+    db.run('DELETE FROM comment_likes WHERE comment_id = ?', [id]);
     db.run('DELETE FROM comments WHERE id = ?', [id]);
     saveDatabase();
     return true;
@@ -86,6 +92,9 @@ class Comment {
       content: row[3],
       createdAt: row[4],
       updatedAt: row[5],
+      parentId: row[8],
+      likeCount: row[9],
+      liked: Boolean(row[10]),
       user: {
         name: row[6],
         avatar: row[7]

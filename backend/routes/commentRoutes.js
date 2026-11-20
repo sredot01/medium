@@ -5,12 +5,14 @@ const {
   getPostComments,
   updateComment,
   deleteComment,
+  setCommentLike,
 } = require('../controllers/commentController');
-const { protect } = require('../middleware/auth');
+const { protect, optionalAuth } = require('../middleware/auth');
 
 // Comment routes for posts
 router.post('/:postId/comments', protect, createComment);
-router.get('/:postId/comments', getPostComments);
+router.get('/:postId/comments', optionalAuth, getPostComments);
+router.route('/comments/:id/like').put(protect, setCommentLike).delete(protect, setCommentLike);
 
 // Individual comment routes
 router.put('/comments/:id', protect, updateComment);
