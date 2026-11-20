@@ -142,7 +142,7 @@ export default function EditPost() {
   }
 
   return (
-    <PostAILayout assistant={<PostAI onInsert={draft => setContent(current => appendDraft(current, draft))} />}>
+    <PostAILayout writing assistant={<PostAI onInsert={draft => setContent(current => appendDraft(current, draft))} />}>
     <div className="mx-auto max-w-4xl py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -176,8 +176,7 @@ export default function EditPost() {
         onChange={setContent}
         modules={modules}
         placeholder="Tell your story..."
-        className="mb-8"
-        style={{ minHeight: '400px' }}
+        className="writing-editor mb-8"
       />
 
       {/* Publish Modal */}

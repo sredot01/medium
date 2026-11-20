@@ -364,3 +364,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 420px) {
   .theme-menu .theme-panel { position: fixed; top: 3.75rem; right: 0.75rem; left: auto; transform: none; }
 }
+
+.writing-editor .ql-editor {
+  min-height: max(32rem, 60vh);
+}

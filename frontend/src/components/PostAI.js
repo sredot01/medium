@@ -72,7 +72,7 @@ export default function PostAI({ slug, onInsert }) {
           <label className="block">
             What should the post cover?
             <textarea value={prompt} onChange={event => setPrompt(event.target.value)} maxLength={2000}
-              rows={3} className="mt-1 block w-full rounded-md border border-gray-300 bg-white p-3" />
+              rows={6} className="mt-1 block w-full resize-y rounded-md border border-gray-300 bg-white p-3" />
           </label>
           <button type="button" disabled={loading || prompt.trim().length < 8}
             onClick={generate} className="rounded-full bg-green-600 px-4 py-2 font-medium text-white disabled:opacity-50">

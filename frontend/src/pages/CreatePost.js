@@ -358,8 +358,8 @@ export default function CreatePost() {
 
       {/* Main Editor - Centered */}
       <main className="pt-[65px]">
-        <PostAILayout assistant={<PostAI onInsert={draft => setFormData(current => ({ ...current, content: appendDraft(current.content, draft) }))} />}>
-        <div className="mx-auto max-w-[740px] pb-20 pt-4 sm:px-6 xl:pt-20">
+        <PostAILayout writing assistant={<PostAI onInsert={draft => setFormData(current => ({ ...current, content: appendDraft(current.content, draft) }))} />}>
+        <div className="mx-auto max-w-5xl pb-20 pt-4 sm:px-6 xl:pt-20">
           {/* Title with Plus Button */}
           <div className="mb-8 relative">
             <div className="flex items-start space-x-4">
@@ -446,7 +446,7 @@ export default function CreatePost() {
               modules={modules}
               formats={formats}
               placeholder="Tell your story..."
-              className="min-h-[500px]"
+              className="writing-editor"
             />
           </div>
         </div>
