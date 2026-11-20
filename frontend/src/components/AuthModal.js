@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getGitHubLoginStatus, githubLoginUrl, requestSignup, requestPasswordReset } from '../api/api';
 
-const titles = { signin: 'Welcome back.', signup: 'Join Medium.', reset: 'Reset your password' };
+const titles = { signin: 'Welcome back.', signup: 'Join TechBlog.', reset: 'Reset your password' };
 const actions = { signin: 'Sign in', signup: 'Send verification link', reset: 'Send reset link' };
 
 export default function AuthModal({ isOpen, onClose, mode: initialMode = 'signin' }) {

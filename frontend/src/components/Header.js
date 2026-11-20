@@ -68,9 +68,9 @@ export default function Header({ onMenuClick, onSearch }) {
           </button>
           </>}
 
-          {/* Medium Logo */}
+          {/* TechBlog Logo */}
           <Link to={user ? "/home" : "/"} className="flex items-center">
-            <span className="font-spectral text-2xl font-bold tracking-tight text-gray-900">Medium</span>
+            <span className="font-spectral text-2xl font-bold tracking-tight text-gray-900">TechBlog</span>
           </Link>
 
           {/* Search Bar */}
@@ -80,7 +80,7 @@ export default function Header({ onMenuClick, onSearch }) {
             </svg>
             <input
               type="text"
-              placeholder="Search Medium"
+              placeholder="Search TechBlog"
               value={searchQuery}
               onChange={handleSearchChange}
               className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 rounded-full border border-transparent focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-all duration-200"

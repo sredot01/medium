@@ -71,7 +71,7 @@ const Landing = () => {
       <header className="border-b border-black">
         <div className="max-w-[1192px] mx-auto flex items-center justify-between gap-2 px-3 py-5 sm:px-6 sm:py-6">
           <Link to="/" className="font-spectral text-2xl font-bold text-black sm:text-3xl">
-            Medium
+            TechBlog
           </Link>
           <nav className="flex items-center gap-2 sm:gap-4">
             <ThemeMenu />
@@ -114,12 +114,13 @@ const Landing = () => {
 
           {/* Right Illustration */}
           <div className="hidden md:flex items-center justify-center">
-            {/* Medium's characteristic M illustration */}
+            {/* TechBlog monogram */}
             <svg
               width="460"
               height="460"
               viewBox="0 0 460 460"
               fill="none"
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
             >
               {/* Simple artistic illustration placeholder */}
@@ -129,15 +130,8 @@ const Landing = () => {
                 <circle cx="280" cy="180" r="80" fill="#FFC017" opacity="0.3" />
                 <circle cx="150" cy="250" r="100" fill="#191919" opacity="0.5" />
                 
-                {/* Letter M stylized */}
-                <path
-                  d="M130 320 L130 140 L230 240 L330 140 L330 320"
-                  stroke="white"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  fill="none"
-                />
+                <text x="230" y="230" textAnchor="middle" dominantBaseline="central"
+                  fill="white" fontFamily="Georgia, serif" fontSize="126" fontWeight="700">TB</text>
               </g>
             </svg>
           </div>
@@ -162,7 +156,7 @@ const Landing = () => {
               />
             </svg>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-black">
-              Trending on Medium
+              Trending on TechBlog
             </h2>
           </div>
 

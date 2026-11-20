@@ -301,7 +301,7 @@ export default function CreatePost() {
               className="text-[32px] font-bold tracking-tight hover:opacity-80 transition-opacity"
               style={{ fontFamily: 'Spectral, Georgia, serif' }}
             >
-              Medium
+              TechBlog
             </button>
             <span className="text-sm text-gray-500">
               Draft in {user?.name || 'Your Name'}
@@ -455,7 +455,7 @@ export default function CreatePost() {
         </PostAILayout>
       </main>
 
-      {/* Publish Modal - Medium Style Two Column */}
+      {/* Publish Modal - TechBlog Style Two Column */}
       {showPublishModal && (
         <div className="fixed inset-0 z-50 bg-white">
           {/* Close button - top right */}
@@ -515,7 +515,7 @@ export default function CreatePost() {
 
                   {/* Note */}
                   <p className="mt-6 text-[13px] text-gray-500 leading-relaxed">
-                    <span className="font-semibold">Note:</span> Changes here will affect how your story appears in public places like Medium's homepage and in subscribers' inboxes — not the contents of the story itself.
+                    <span className="font-semibold">Note:</span> Changes here will affect how your story appears in public places like TechBlog's homepage and in subscribers' inboxes — not the contents of the story itself.
                   </p>
                 </div>
 
