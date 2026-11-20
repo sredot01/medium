@@ -11,7 +11,7 @@ export default function Profile() {
   const notify = useToast();
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser, isAuthenticated } = useAuth();
+  const { user: currentUser, isAuthenticated, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,8 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('home'); // home, about
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (authLoading) return;
+    if (!userId && !isAuthenticated) {
       navigate('/');
       return;
     }
@@ -33,7 +34,7 @@ export default function Profile() {
         checkIfFollowing(profileUserId);
       }
     }
-  }, [userId, currentUser?.id, isAuthenticated, navigate]);
+  }, [userId, currentUser?.id, isAuthenticated, authLoading, navigate]);
 
   const fetchProfile = async (id) => {
     try {
@@ -66,7 +67,7 @@ export default function Profile() {
   };
 
   const handleFollow = async () => {
-    if (!profile) return;
+    if (!profile || !isAuthenticated) return;
     
     try {
       if (isFollowing) {
@@ -112,10 +113,10 @@ export default function Profile() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-white">
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-        <Sidebar isOpen={sidebarOpen} />
+        <Header onMenuClick={isAuthenticated ? () => setSidebarOpen(!sidebarOpen) : undefined} />
+        {isAuthenticated && <Sidebar isOpen={sidebarOpen} />}
         <div className={`flex justify-center items-center h-[calc(100vh-200px)] transition-all duration-300 ${
-          sidebarOpen ? 'ml-[240px]' : 'ml-0'
+          isAuthenticated && sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
         }`}>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
@@ -125,10 +126,10 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-      <Sidebar isOpen={sidebarOpen} />
+      <Header onMenuClick={isAuthenticated ? () => setSidebarOpen(!sidebarOpen) : undefined} />
+      {isAuthenticated && <Sidebar isOpen={sidebarOpen} />}
 
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-[240px]' : 'ml-0'} pt-14`}>
+      <div className={`transition-all duration-300 ${isAuthenticated && sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'} pt-14`}>
         {/* Profile Header */}
         <div className="border-b border-gray-200">
           <div className="max-w-5xl mx-auto px-4 py-12">
@@ -147,7 +148,7 @@ export default function Profile() {
                 )}
                 <div>
                   <h1 className="text-4xl font-bold text-gray-900 mb-2">{profile.name}</h1>
-                  <p className="text-gray-600">{profile.email}</p>
+                  {isOwnProfile && <p className="text-gray-600">{profile.email}</p>}
                   {profile.bio && <p className="text-gray-700 mt-2">{profile.bio}</p>}
                 </div>
               </div>
@@ -160,6 +161,8 @@ export default function Profile() {
                   >
                     Edit profile
                   </Link>
+                ) : !isAuthenticated ? (
+                  <Link to="/" className="text-sm font-medium text-green-600">Sign in to follow</Link>
                 ) : (
                   <>
                     <button
@@ -180,12 +183,17 @@ export default function Profile() {
             {/* Stats */}
             <div className="flex items-center space-x-6 text-sm text-gray-600">
               <span>{profile.postCount || 0} stories</span>
+              {isAuthenticated ? <>
               <Link to={`/profile/${profile.id}/followers`} className="hover:text-gray-900">
                 {profile.followerCount || 0} followers
               </Link>
               <Link to={`/profile/${profile.id}/following`} className="hover:text-gray-900">
                 {profile.followingCount || 0} following
               </Link>
+              </> : <>
+                <span>{profile.followerCount || 0} followers</span>
+                <span>{profile.followingCount || 0} following</span>
+              </>}
             </div>
 
             {/* Tabs */}
