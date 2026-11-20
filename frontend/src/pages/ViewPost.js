@@ -474,11 +474,15 @@ export default function ViewPost() {
               {Array.isArray(comments) && comments.map((comment) => (
                 <div key={comment.id} className="flex items-start space-x-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                    {comment.userName?.charAt(0) || 'U'}
+                    {comment.user?.avatar ? (
+                      <img src={comment.user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
+                    ) : (
+                      comment.user?.name?.trim().charAt(0).toUpperCase() || 'U'
+                    )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-semibold text-sm">{comment.userName || 'Anonymous'}</span>
+                      <span className="font-semibold text-sm">{comment.user?.name?.trim() || 'Anonymous'}</span>
                       <span className="text-gray-500 text-xs">·</span>
                       <span className="text-gray-500 text-xs">{formatDate(comment.createdAt)}</span>
                     </div>
