@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import Landing from './pages/Landing';
+import SignIn from './pages/SignIn';
 import Stories from './pages/Stories';
 import EditPost from './pages/EditPost';
 import Home from './pages/Home';
@@ -28,6 +29,7 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/signin" element={<SignIn />} />
                 <Route path="/auth/github/complete" element={<GitHubComplete />} />
                 <Route path="/auth/email/signup" element={<EmailAuthComplete isSignup />} />
                 <Route path="/auth/email/reset" element={<EmailAuthComplete />} />

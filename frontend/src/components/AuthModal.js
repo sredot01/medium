@@ -6,7 +6,7 @@ import { getGitHubLoginStatus, githubLoginUrl, requestSignup, requestPasswordRes
 const titles = { signin: 'Welcome back.', signup: 'Join TechBlog.', reset: 'Reset your password' };
 const actions = { signin: 'Sign in', signup: 'Send verification link', reset: 'Send reset link' };
 
-export default function AuthModal({ isOpen, onClose, mode: initialMode = 'signin' }) {
+export default function AuthModal({ isOpen, onClose, mode: initialMode = 'signin', returnTo = '/home' }) {
   const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,7 +46,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode = 'signin
         const result = await login(email, password);
         if (result.success) {
           onClose();
-          navigate('/home');
+          navigate(returnTo, { replace: true });
         } else {
           setError(result.error);
         }

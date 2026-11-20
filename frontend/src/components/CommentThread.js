@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { createComment, setCommentLike } from '../api/api';
 import { useToast } from '../context/ToastContext';
 
-export default function CommentThread({ comments, postId, user, reload, onDelete, formatDate }) {
+export default function CommentThread({ comments, postId, user, reload, onSignIn, onDelete, formatDate }) {
   const notify = useToast();
   const { hash } = useLocation();
   const [replyTo, setReplyTo] = useState(null);
@@ -129,7 +129,12 @@ export default function CommentThread({ comments, postId, user, reload, onDelete
                 <button type="button" disabled={replying} onClick={() => { setReplyTo(comment.id); setReply(''); }} className="hover:text-gray-900">Reply</button>
                 {user.id === comment.userId && <button type="button" className="hover:text-red-600" onClick={() => onDelete(comment.id)}>Delete</button>}
               </div>
-            ) : Boolean(comment.likeCount) && <p className="text-xs text-gray-500">{comment.likeCount} {comment.likeCount === 1 ? 'like' : 'likes'}</p>}
+            ) : (
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <button type="button" onClick={onSignIn}>Like{comment.likeCount ? ` · ${comment.likeCount}` : ''}</button>
+                <button type="button" onClick={onSignIn}>Reply</button>
+              </div>
+            )}
             {count > 0 && (
               <button type="button" aria-expanded={expanded.has(comment.id)} onClick={() => toggleReplies(comment.id)}
                 className="mt-2 text-sm font-medium text-green-600 hover:underline">

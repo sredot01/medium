@@ -113,8 +113,12 @@ export default function ViewPost() {
     }
   };
 
+  const signInPath = '/signin?next=' + encodeURIComponent(window.location.pathname);
+  const openSignIn = () => navigate(signInPath);
+
   const handleLike = async () => {
-    if (!isAuthenticated || !post) return;
+    if (!isAuthenticated) return openSignIn();
+    if (!post) return;
     
     try {
       if (liked) {
@@ -321,7 +325,8 @@ export default function ViewPost() {
               {/* Like Button */}
               <button
                 onClick={handleLike}
-                disabled={!isAuthenticated}
+                aria-label={liked ? 'Unlike post' : 'Like post'}
+                aria-pressed={liked}
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition"
               >
                 <svg
@@ -341,7 +346,7 @@ export default function ViewPost() {
               </button>
 
               {/* Comment Count */}
-              <div className="flex items-center space-x-2 text-gray-600">
+              <button type="button" aria-label="Respond to post" onClick={isAuthenticated ? () => document.getElementById('post-response')?.focus() : openSignIn} className="flex items-center space-x-2 text-gray-600 hover:text-gray-900">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -351,7 +356,7 @@ export default function ViewPost() {
                   />
                 </svg>
                 <span>{comments.length}</span>
-              </div>
+              </button>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -476,6 +481,8 @@ export default function ViewPost() {
                 </div>
                 <div className="flex-1">
                   <textarea
+                    id="post-response"
+                    aria-label="Write a response"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="What are your thoughts?"
@@ -500,10 +507,10 @@ export default function ViewPost() {
                   </div>
                 </div>
               </div>
-            </form> : <p className="mb-8 text-sm"><Link className="text-green-600 underline" to="/">Sign in</Link> to respond.</p>}
+            </form> : <p className="mb-8 text-sm"><Link className="text-green-600 underline" to={signInPath}>Sign in</Link> to respond.</p>}
 
             <CommentThread key={post.id} comments={comments} postId={post.id} user={user}
-              reload={fetchComments} onDelete={handleDeleteComment} formatDate={formatDate} />
+              reload={fetchComments} onSignIn={openSignIn} onDelete={handleDeleteComment} formatDate={formatDate} />
           </div>
         </article>
         </PostAILayout>

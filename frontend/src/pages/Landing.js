@@ -1,243 +1,95 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
+import { format, isValid } from 'date-fns';
 import ThemeMenu from '../components/ThemeMenu';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
+import { useAuth } from '../context/AuthContext';
 import { getAllPosts } from '../api/api';
-import { format, parseISO, isValid } from 'date-fns';
 
-const Landing = () => {
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
-  const [trendingPosts, setTrendingPosts] = useState([]);
+function StoryCard({ post, featured = false }) {
+  const date = new Date(post.createdAt);
+  const [imageFailed, setImageFailed] = useState(false);
+  const content = DOMPurify.sanitize(post.content || '', {
+    ALLOWED_TAGS: ['img'], ALLOWED_ATTR: ['src'], RETURN_DOM_FRAGMENT: true
+  });
+  const image = post.coverImage || content.querySelector('img')?.getAttribute('src');
+  const showImage = image && /^(https?:\/\/|\/(?!\/)|data:image\/(png|jpe?g|webp|avif|gif);base64,)/i.test(image) && !imageFailed;
+  return (
+    <Link to={'/post/' + encodeURIComponent(post.slug)} className={'landing-story group ' + (featured ? 'landing-story-featured' : '')}>
+      {featured && (showImage
+        ? <img className="landing-cover" src={image} alt="" onError={() => setImageFailed(true)} />
+        : <div className="landing-cover landing-cover-pattern" aria-hidden="true" />)}
+      <div className="p-5 sm:p-6">
+        <p className="text-sm text-[var(--theme-muted)]">{post.author || 'Anonymous'}</p>
+        <h3 className="mt-2 font-spectral text-2xl font-bold leading-tight group-hover:underline">{post.title}</h3>
+        <p className="mt-3 text-sm text-[var(--theme-muted)]">
+          {isValid(date) && <>{format(date, 'd MMM')} · </>}{post.readTime || 5} min read
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+export default function Landing() {
+  const [signup, setSignup] = useState(false);
+  const [posts, setPosts] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
 
-  // Fetch trending posts
   useEffect(() => {
-    fetchTrendingPosts();
+    let active = true;
+    getAllPosts().then(({ data }) => {
+      if (!active) return;
+      const published = (data.data || []).filter(post => post.slug);
+      published.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) ||
+        (b.likeCount || 0) - (a.likeCount || 0) || new Date(b.createdAt) - new Date(a.createdAt));
+      setPosts(published.slice(0, 7));
+    }).catch(() => { if (active) setLoadError(true); });
+    return () => { active = false; };
   }, []);
 
-  // If authenticated, redirect to home
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/home');
-    }
-  }, [isAuthenticated, navigate]);
-
-  const fetchTrendingPosts = async () => {
-    try {
-      const response = await getAllPosts();
-      const posts = response.data.data || [];
-      // Get top 6 posts sorted by likes
-      const sorted = [...posts].sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
-      setTrendingPosts(sorted.slice(0, 6));
-    } catch (error) {
-      console.error('Error fetching trending posts:', error);
-      setTrendingPosts([]);
-    }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Recently';
-    try {
-      const date = parseISO(dateString);
-      if (isValid(date)) {
-        return format(date, 'd MMM');
-      }
-      const fallbackDate = new Date(dateString);
-      if (!isNaN(fallbackDate.getTime())) {
-        return format(fallbackDate, 'd MMM');
-      }
-      return 'Recently';
-    } catch (error) {
-      return 'Recently';
-    }
-  };
-
-  const openSignIn = () => {
-    setAuthMode('signin');
-    setAuthModalOpen(true);
-  };
-
-  const openSignUp = () => {
-    setAuthMode('signup');
-    setAuthModalOpen(true);
-  };
+  if (isAuthenticated) return <Navigate to="/home" replace />;
+  const [featured, ...stories] = posts || [];
 
   return (
-    <div className="theme-landing min-h-screen overflow-hidden bg-[#FFC017]">
-      {/* Header */}
-      <header className="border-b border-black">
-        <div className="max-w-[1192px] mx-auto flex items-center justify-between gap-2 px-3 py-5 sm:px-6 sm:py-6">
-          <Link to="/" className="font-spectral text-2xl font-bold text-black sm:text-3xl">
-            TechBlog
-          </Link>
-          <nav className="flex items-center gap-2 sm:gap-4">
+    <div className="min-h-screen bg-[var(--theme-track)]">
+      <header className="border-b border-[var(--theme-line)] bg-[var(--theme-panel)]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
+          <Link to="/" className="font-spectral text-2xl font-bold sm:text-3xl">TechBlog</Link>
+          <nav aria-label="Main" className="flex items-center gap-3 sm:gap-5">
+            <a href="#stories" className="hidden text-sm font-medium hover:underline sm:inline">Stories</a>
             <ThemeMenu />
-            <button
-              onClick={openSignIn}
-              className="text-sm font-medium text-black hover:opacity-70 transition-opacity"
-            >
-              Sign in
-            </button>
-            <button
-              onClick={openSignUp}
-              className="whitespace-nowrap rounded-full bg-black px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-900 sm:px-4"
-            >
-              Get started
-            </button>
+            <Link to="/signin" className="whitespace-nowrap text-sm font-medium hover:underline">Sign in</Link>
+            <button type="button" onClick={() => setSignup(true)} className="landing-primary">Join TechBlog</button>
           </nav>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="border-b border-black">
-        <div className="max-w-[1192px] mx-auto px-6 py-24 md:py-32 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
+      <main className="mx-auto max-w-6xl px-5 sm:px-8">
+        <section className="grid items-center gap-10 border-b border-[var(--theme-line)] py-12 sm:py-16 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-20">
           <div>
-            <h1 className="font-spectral text-[88px] md:text-[106px] leading-[95px] font-normal mb-8 tracking-tight text-black">
-              Human
-              <br />
-              stories & ideas
+            <h1 className="font-spectral text-[clamp(2.8rem,6.5vw,5.5rem)] font-semibold leading-[0.99] tracking-tight">
+              Technology, <span className="text-[var(--theme-accent)]">explained.</span>
             </h1>
-            <p className="text-[24px] text-black mb-12">
-              A place to read, write, and deepen your understanding
+            <p className="mt-5 max-w-md text-lg leading-relaxed text-[var(--theme-muted)]">
+              Explore ideas in AI, software, and infrastructure from the people building with them.
             </p>
-            <button
-              onClick={openSignUp}
-              className="px-12 py-3 bg-black text-white rounded-full text-[20px] font-medium hover:bg-gray-900 transition-colors"
-            >
-              Start reading
-            </button>
+            <a href="#stories" className="landing-primary mt-7 inline-flex items-center gap-3">Explore stories <span aria-hidden="true">↓</span></a>
           </div>
+          {featured && <div><p className="mb-3 text-sm font-semibold text-[var(--theme-muted)]">Featured story</p><StoryCard key={featured.id} post={featured} featured /></div>}
+        </section>
 
-          {/* Right Illustration */}
-          <div className="hidden md:flex items-center justify-center">
-            {/* TechBlog monogram */}
-            <svg
-              width="460"
-              height="460"
-              viewBox="0 0 460 460"
-              fill="none"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Simple artistic illustration placeholder */}
-              <g>
-                {/* Background circles */}
-                <circle cx="230" cy="230" r="200" fill="#191919" opacity="0.9" />
-                <circle cx="280" cy="180" r="80" fill="#FFC017" opacity="0.3" />
-                <circle cx="150" cy="250" r="100" fill="#191919" opacity="0.5" />
-                
-                <text x="230" y="230" textAnchor="middle" dominantBaseline="central"
-                  fill="white" fontFamily="Georgia, serif" fontSize="126" fontWeight="700">TB</text>
-              </g>
-            </svg>
-          </div>
-        </div>
-      </section>
-
-      {/* Trending Section */}
-      <section className="bg-white">
-        <div className="max-w-[1192px] mx-auto px-6 py-16">
-          <div className="flex items-center space-x-2 mb-6">
-            <svg
-              className="w-6 h-6 text-black"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-              />
-            </svg>
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-black">
-              Trending on TechBlog
-            </h2>
-          </div>
-
-          {/* Trending Posts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {trendingPosts.length > 0 ? (
-              trendingPosts.map((post, index) => (
-                <div key={post.id} className="flex">
-                  <span className="text-[32px] font-bold text-gray-200 mr-4">
-                    0{index + 1}
-                  </span>
-                  <div>
-                    <div className="flex items-center space-x-2 mb-2">
-                      {post.authorAvatar ? (
-                        <img
-                          src={post.authorAvatar}
-                          alt={post.author}
-                          className="w-5 h-5 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                          <span className="text-white text-[10px] font-semibold">
-                            {post.author?.charAt(0).toUpperCase() || 'A'}
-                          </span>
-                        </div>
-                      )}
-                      <span className="text-xs font-medium text-gray-900">{post.author || 'Anonymous'}</span>
-                    </div>
-                    <button
-                      onClick={openSignUp}
-                      className="text-left"
-                    >
-                      <h3 className="text-base font-bold text-gray-900 mb-2 leading-tight hover:underline">
-                        {post.title}
-                      </h3>
-                    </button>
-                    <p className="text-xs text-gray-500">
-                      {formatDate(post.createdAt)} · {post.readTime || 5} min read
-                      {post.likeCount > 0 && <span className="ml-1">· {post.likeCount} ❤️</span>}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-3 text-center py-8 text-gray-500">
-                <p>No posts available yet. Be the first to write!</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200">
-        <div className="max-w-[1192px] mx-auto px-6 py-8">
-          <div className="flex flex-wrap justify-center space-x-6 text-xs text-gray-500">
-            <Link to="/help" className="hover:underline">Help</Link>
-            <Link to="/status" className="hover:underline">Status</Link>
-            <Link to="/writers" className="hover:underline">Writers</Link>
-            <Link to="/blog" className="hover:underline">Blog</Link>
-            <Link to="/careers" className="hover:underline">Careers</Link>
-            <Link to="/privacy" className="hover:underline">Privacy</Link>
-            <Link to="/terms" className="hover:underline">Terms</Link>
-            <Link to="/about" className="hover:underline">About</Link>
-            <Link to="/text-to-speech" className="hover:underline">Text to speech</Link>
-            <Link to="/teams" className="hover:underline">Teams</Link>
-          </div>
-        </div>
-      </footer>
-
-      {/* Auth Modal */}
-      {authModalOpen && (
-        <AuthModal
-          isOpen={authModalOpen}
-          onClose={() => setAuthModalOpen(false)}
-          mode={authMode}
-        />
-      )}
+        <section id="stories" className="scroll-mt-5 py-10 sm:py-12" aria-labelledby="stories-heading">
+          <h2 id="stories-heading" className="mb-6 font-spectral text-3xl font-bold">Explore stories</h2>
+          {loadError ? <p role="status">Stories are temporarily unavailable.</p> : !posts ? <p role="status">Loading stories…</p> : !posts.length ? <p>No stories have been published yet.</p> : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(stories.length ? stories : [featured]).map(post => <StoryCard key={post.id} post={post} />)}
+            </div>
+          )}
+        </section>
+      </main>
+      {signup && <AuthModal isOpen mode="signup" onClose={() => setSignup(false)} />}
     </div>
   );
-};
-
-export default Landing;
-
+}
