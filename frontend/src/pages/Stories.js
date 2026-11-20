@@ -1,3 +1,4 @@
+import { useConfirm } from '../context/ConfirmContext';
 import { useToast } from '../context/ToastContext';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { format, parseISO, isValid } from 'date-fns';
 
 export default function Stories() {
   const notify = useToast();
+  const confirm = useConfirm();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('published'); // published, drafts, responses
@@ -34,7 +36,7 @@ export default function Stories() {
   };
 
   const handleDelete = async (postId) => {
-    if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+    if (await confirm({ title: 'Delete this post?', message: 'This will permanently remove the post. This action cannot be undone.', action: 'Delete post' })) {
       try {
         await deletePost(postId);
         setPosts(current => current.filter(post => post.id !== postId));

@@ -1,3 +1,4 @@
+import { useConfirm } from '../context/ConfirmContext';
 import { useToast } from '../context/ToastContext';
 import DOMPurify from 'dompurify';
 import PostAI from '../components/PostAI';
@@ -26,6 +27,7 @@ import Sidebar from '../components/Sidebar';
 
 export default function ViewPost() {
   const notify = useToast();
+  const confirm = useConfirm();
   const { slug } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading, user } = useAuth();
@@ -146,7 +148,7 @@ export default function ViewPost() {
   };
 
   const handleDeleteComment = async (commentId) => {
-    if (!window.confirm('Delete this comment?')) return;
+    if (!await confirm({ title: 'Delete this comment?', message: 'This action cannot be undone.', action: 'Delete comment' })) return;
     
     try {
       await deleteComment(commentId);
@@ -158,7 +160,7 @@ export default function ViewPost() {
   };
 
   const handleDeletePost = async () => {
-    if (!window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) return;
+    if (!await confirm({ title: 'Delete this post?', message: 'This will permanently remove the post. This action cannot be undone.', action: 'Delete post' })) return;
     
     try {
       await deletePost(post.id);
