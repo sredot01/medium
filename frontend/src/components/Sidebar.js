@@ -58,6 +58,7 @@ export default function Sidebar({ isOpen }) {
             <Link
               key={item.path}
               to={item.path}
+              aria-current={location.pathname === item.path ? "page" : undefined}
               className={`site-nav-link flex items-center space-x-3 px-3 py-2 rounded-md text-sm ${
                 location.pathname === item.path
                   ? 'text-gray-900 font-medium'
