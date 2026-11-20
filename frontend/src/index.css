@@ -661,3 +661,16 @@ h1, h2, h3, h4, h5, h6 {
   outline: 2px solid var(--theme-focus);
   outline-offset: 1px;
 }
+
+.editorial-masthead-accent {
+  border-bottom: 0;
+  border-radius: 1rem;
+  margin-top: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.4rem, 4vw, 3rem);
+  background:
+    radial-gradient(ellipse at 95% 10%, color-mix(in srgb, var(--theme-accent) 15%, transparent), transparent 65%),
+    var(--theme-panel);
+  border: 1px solid var(--theme-line);
+}
+
+.editorial-masthead-accent h1 { max-width: 22ch; text-wrap: balance; }

@@ -18,7 +18,7 @@ function StoryCard({ post, featured = false }) {
   const safeImage = source => /^(https?:\/\/|\/(?!\/)|data:image\/(png|jpe?g|webp|avif|gif);base64,)/i.test(source || '');
   const image = [post.coverImage, content.querySelector('img')?.getAttribute('src')].find(safeImage);
   content.querySelectorAll('p, div, li, br, blockquote').forEach(node => node.after(' '));
-  const opening = content.textContent.replace(/\s+/g, ' ').trim();
+  const opening = content.textContent.replace(/(^|\s)#{1,6}\s+/g, '$1').replace(/\s+/g, ' ').trim();
   const limit = featured ? 310 : 230;
   const excerpt = opening.length > limit ? opening.slice(0, limit).replace(/\s+\S*$/, '') + '…' : opening;
   const showImage = image && !imageFailed;
@@ -73,8 +73,9 @@ export default function Landing() {
       <header className="border-b border-[var(--theme-line)] bg-[var(--theme-panel)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
           <Link to="/" className="font-spectral text-2xl font-bold sm:text-3xl">TechBlog</Link>
-          <nav aria-label="Main" className="flex items-center gap-3 sm:gap-5">
+          <nav aria-label="Main" className="flex flex-wrap items-center justify-end gap-2 sm:gap-5">
             <a href="#stories" className="hidden text-sm font-medium hover:underline sm:inline">Stories</a>
+            <Link to="/ai" className="whitespace-nowrap text-sm font-semibold text-[var(--theme-accent)] hover:underline">AI Research</Link>
             <ThemeMenu />
             <Link to="/signin" className="whitespace-nowrap text-sm font-medium hover:underline">Sign in</Link>
             <button type="button" onClick={() => setSignup(true)} className="landing-primary">Join TechBlog</button>
@@ -83,10 +84,14 @@ export default function Landing() {
       </header>
 
       <main className="editorial-shell">
-        <div className="editorial-masthead">
+        <div className="editorial-masthead editorial-masthead-accent">
           <h1 className="font-spectral">Technology and the decisions behind it.</h1>
           <p>Analysis for leaders making decisions about AI, software, and infrastructure.</p>
         </div>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link className="landing-primary" to="/ai">Explore AI research</Link>
+            <a className="self-center text-sm font-semibold hover:underline" href="#stories">Browse stories ↓</a>
+          </div>
         {featured && <StoryCard key={featured.id} post={featured} featured />}
 
         <section id="stories" className="editorial-stories scroll-mt-5" aria-labelledby="stories-heading">

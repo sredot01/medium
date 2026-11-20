@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import Landing from './pages/Landing';
+import AIResearch from './pages/AIResearch';
 import LegalPage from './pages/LegalPage';
 import SignIn from './pages/SignIn';
 import Stories from './pages/Stories';
@@ -30,6 +31,7 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/ai" element={<AIResearch />} />
                 <Route path="/privacy" element={<LegalPage isPrivacy />} />
                 <Route path="/terms" element={<LegalPage />} />
                 <Route path="/signin" element={<SignIn />} />

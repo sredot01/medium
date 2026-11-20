@@ -102,6 +102,7 @@ export default function Header({ onMenuClick, onSearch }) {
 
         {/* Right Section */}
         <div className="relative flex shrink-0 items-center gap-2 sm:gap-4">
+          <Link to="/ai" className="whitespace-nowrap text-sm font-medium text-[var(--theme-accent)] hover:underline">AI Research</Link>
           <ThemeMenu />
           {user ? <>
           {/* Write Button */}
