@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PostAI, { appendDraft } from '../components/PostAI';
+import PostAILayout from '../components/PostAILayout';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPostById, updatePost } from '../api/api';
 import { useAuth } from '../context/AuthContext';
@@ -141,7 +142,8 @@ export default function EditPost() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <PostAILayout assistant={<PostAI onInsert={draft => setContent(current => appendDraft(current, draft))} />}>
+    <div className="mx-auto max-w-4xl py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <button
@@ -168,7 +170,6 @@ export default function EditPost() {
       />
 
       {/* Content Editor */}
-      <PostAI onInsert={draft => setContent(current => appendDraft(current, draft))} />
       <ReactQuill
         theme="snow"
         value={content}
@@ -305,6 +306,7 @@ export default function EditPost() {
         </div>
       )}
     </div>
+    </PostAILayout>
   );
 }
 

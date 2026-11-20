@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PostAI, { appendDraft } from '../components/PostAI';
+import PostAILayout from '../components/PostAILayout';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.bubble.css';
@@ -357,7 +358,8 @@ export default function CreatePost() {
 
       {/* Main Editor - Centered */}
       <main className="pt-[65px]">
-        <div className="max-w-[740px] mx-auto px-10 py-20">
+        <PostAILayout assistant={<PostAI onInsert={draft => setFormData(current => ({ ...current, content: appendDraft(current.content, draft) }))} />}>
+        <div className="mx-auto max-w-[740px] pb-20 pt-4 sm:px-6 xl:pt-20">
           {/* Title with Plus Button */}
           <div className="mb-8 relative">
             <div className="flex items-start space-x-4">
@@ -436,7 +438,6 @@ export default function CreatePost() {
 
           {/* Story Content */}
           <div className="mt-8">
-            <PostAI onInsert={draft => setFormData(current => ({ ...current, content: appendDraft(current.content, draft) }))} />
             <ReactQuill
               ref={quillRef}
               theme="bubble"
@@ -449,6 +450,7 @@ export default function CreatePost() {
             />
           </div>
         </div>
+        </PostAILayout>
       </main>
 
       {/* Publish Modal - Medium Style Two Column */}

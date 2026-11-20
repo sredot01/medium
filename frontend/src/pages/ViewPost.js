@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify';
 import PostAI from '../components/PostAI';
+import PostAILayout from '../components/PostAILayout';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { format, parseISO, isValid } from 'date-fns';
@@ -28,7 +29,7 @@ export default function ViewPost() {
   const { isAuthenticated, loading: authLoading, user } = useAuth();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
   
   // Likes & Comments State
   const [liked, setLiked] = useState(false);
@@ -222,7 +223,7 @@ export default function ViewPost() {
         <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         <Sidebar isOpen={sidebarOpen} />
         <div className={`flex justify-center items-center h-[calc(100vh-200px)] transition-all duration-300 ${
-          sidebarOpen ? 'ml-[240px]' : 'ml-0'
+          sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
         }`}>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
@@ -236,7 +237,7 @@ export default function ViewPost() {
         <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         <Sidebar isOpen={sidebarOpen} />
         <div className={`flex justify-center items-center h-[calc(100vh-200px)] transition-all duration-300 ${
-          sidebarOpen ? 'ml-[240px]' : 'ml-0'
+          sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
         }`}>
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Post not found</h2>
@@ -254,9 +255,10 @@ export default function ViewPost() {
       <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} />
 
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-[240px]' : 'ml-0'} pt-14`}>
+      <div className={`transition-all duration-300 ${sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'} pt-14`}>
         {/* Article Container */}
-        <article className="max-w-3xl mx-auto px-4 py-12">
+        <PostAILayout assistant={<PostAI key={post.slug} slug={post.slug} />}>
+        <article className="mx-auto max-w-3xl pb-12 xl:pt-12">
           {/* Title */}
           <h1 className="text-5xl font-bold text-gray-900 mb-4 leading-tight">
             {post.title}
@@ -402,7 +404,6 @@ export default function ViewPost() {
             </div>
           )}
 
-          <PostAI key={post.slug} slug={post.slug} />
 
           {/* Content */}
           <div
@@ -502,6 +503,7 @@ export default function ViewPost() {
             </div>
           </div>
         </article>
+        </PostAILayout>
       </div>
     </div>
   );
