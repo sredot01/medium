@@ -11,7 +11,6 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:3000',
   process.env.FRONTEND_URL,
-  process.env.GOOGLE_APP_ORIGIN,
   // Add your Netlify URL here after deployment
 ].filter(Boolean);
 
@@ -21,7 +20,7 @@ app.use(cors((req, callback) => callback(null, {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin || origin === `https://${req.get('host')}`) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) === -1 && process.env.NODE_ENV === 'production') {
+    if (!allowedOrigins.includes(origin) && origin !== process.env.GOOGLE_APP_ORIGIN && process.env.NODE_ENV === 'production') {
       return callback(new Error('CORS policy violation'), false);
     }
     return callback(null, true);
