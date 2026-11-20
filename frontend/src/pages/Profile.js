@@ -1,3 +1,4 @@
+import { useToast } from '../context/ToastContext';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getUserProfile, getUserPosts, followUser, unfollowUser, checkFollowing } from '../api/api';
@@ -7,6 +8,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 
 export default function Profile() {
+  const notify = useToast();
   const { userId } = useParams();
   const navigate = useNavigate();
   const { user: currentUser, isAuthenticated } = useAuth();
@@ -84,7 +86,7 @@ export default function Profile() {
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
-      alert('Failed to update follow status');
+      notify('Failed to update follow status', 'error');
     }
   };
 

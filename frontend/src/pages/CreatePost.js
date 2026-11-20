@@ -1,3 +1,4 @@
+import { useToast } from '../context/ToastContext';
 import React, { useState, useRef, useEffect } from 'react';
 import PostAI, { appendDraft } from '../components/PostAI';
 import PostAILayout from '../components/PostAILayout';
@@ -8,6 +9,7 @@ import { createPost } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function CreatePost() {
+  const notify = useToast();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
@@ -73,12 +75,12 @@ export default function CreatePost() {
 
   const handlePublish = async () => {
     if (!formData.title || !formData.content) {
-      alert('Please add a title and content to your story');
+      notify('Please add a title and content to your story', 'error');
       return;
     }
 
     if (!formData.author) {
-      alert('Please enter your name');
+      notify('Please enter your name', 'error');
       return;
     }
 
@@ -105,15 +107,15 @@ export default function CreatePost() {
               console.log('Response:', response);
 
               if (response.data.success) {
-                alert('Story published successfully!');
+                notify('Story published successfully!');
                 navigate('/home');
               } else {
-                alert('Failed to publish: ' + (response.data.message || 'Unknown error'));
+                notify('Failed to publish: ' + (response.data.message || 'Unknown error'), 'error');
               }
     } catch (error) {
       console.error('Error creating post:', error);
       const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to publish story';
-      alert('Failed to publish story: ' + errorMessage);
+      notify('Failed to publish story: ' + errorMessage, 'error');
     } finally {
       setPublishing(false);
     }
@@ -126,13 +128,13 @@ export default function CreatePost() {
 
     // Check if file is an image
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      notify('Please select an image file', 'error');
       return;
     }
 
     // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image size should be less than 5MB');
+      notify('Image size should be less than 5MB', 'error');
       return;
     }
 
@@ -157,7 +159,7 @@ export default function CreatePost() {
     };
 
     reader.onerror = () => {
-      alert('Error reading file');
+      notify('Error reading file', 'error');
       setUploading(false);
     };
 

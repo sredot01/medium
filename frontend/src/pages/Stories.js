@@ -1,3 +1,4 @@
+import { useToast } from '../context/ToastContext';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUserPosts, deletePost } from '../api/api';
@@ -5,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { format, parseISO, isValid } from 'date-fns';
 
 export default function Stories() {
+  const notify = useToast();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('published'); // published, drafts, responses
@@ -35,10 +37,11 @@ export default function Stories() {
     if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
       try {
         await deletePost(postId);
-        setPosts(posts.filter(post => post.id !== postId));
+        setPosts(current => current.filter(post => post.id !== postId));
+        notify('Post deleted successfully');
       } catch (error) {
         console.error('Error deleting post:', error);
-        alert('Failed to delete post');
+        notify('Failed to delete post', 'error');
       }
     }
   };

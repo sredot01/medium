@@ -1,3 +1,4 @@
+import { useToast } from '../context/ToastContext';
 import DOMPurify from 'dompurify';
 import PostAI from '../components/PostAI';
 import PostAILayout from '../components/PostAILayout';
@@ -24,6 +25,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 
 export default function ViewPost() {
+  const notify = useToast();
   const { slug } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading, user } = useAuth();
@@ -137,7 +139,7 @@ export default function ViewPost() {
       await fetchComments(post.id);
     } catch (error) {
       console.error('Error posting comment:', error);
-      alert('Failed to post comment');
+      notify('Failed to post comment', 'error');
     } finally {
       setSubmittingComment(false);
     }
@@ -151,7 +153,7 @@ export default function ViewPost() {
       setComments(comments.filter(c => c.id !== commentId));
     } catch (error) {
       console.error('Error deleting comment:', error);
-      alert('Failed to delete comment');
+      notify('Failed to delete comment', 'error');
     }
   };
 
@@ -160,11 +162,11 @@ export default function ViewPost() {
     
     try {
       await deletePost(post.id);
-      alert('Post deleted successfully');
+      notify('Post deleted successfully');
       navigate('/stories');
     } catch (error) {
       console.error('Error deleting post:', error);
-      alert('Failed to delete post');
+      notify('Failed to delete post', 'error');
     }
   };
 

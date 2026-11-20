@@ -1,3 +1,4 @@
+import { useToast } from '../context/ToastContext';
 import React, { useState, useEffect } from 'react';
 import PostAI, { appendDraft } from '../components/PostAI';
 import PostAILayout from '../components/PostAILayout';
@@ -8,6 +9,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 export default function EditPost() {
+  const notify = useToast();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -50,7 +52,7 @@ export default function EditPost() {
 
       // Check if user owns this post
       if (post.userId !== user.id) {
-        alert('You can only edit your own posts');
+        notify('You can only edit your own posts', 'error');
         navigate('/stories');
         return;
       }
@@ -66,7 +68,7 @@ export default function EditPost() {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching post:', error);
-      alert('Failed to load post');
+      notify('Failed to load post', 'error');
       navigate('/stories');
     }
   };
@@ -84,12 +86,12 @@ export default function EditPost() {
 
   const handlePublish = async () => {
     if (!title.trim()) {
-      alert('Please enter a title');
+      notify('Please enter a title', 'error');
       return;
     }
 
     if (!content.trim()) {
-      alert('Please write some content');
+      notify('Please write some content', 'error');
       return;
     }
 
@@ -118,7 +120,7 @@ export default function EditPost() {
       navigate('/stories');
     } catch (error) {
       console.error('Error updating post:', error);
-      alert('Failed to update post');
+      notify('Failed to update post', 'error');
     }
   };
 
