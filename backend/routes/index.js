@@ -26,10 +26,10 @@ router.get('/health', (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/notifications', require('./notificationRoutes'));
 router.use('/ai', require('./aiRoutes'));
+router.use('/posts', bookmarkRoutes);
 router.use('/posts', postRoutes);
 router.use('/posts', likeRoutes); // Like routes under /posts
 router.use('/posts', commentRoutes); // Comment routes under /posts
-router.use('/posts', bookmarkRoutes); // Bookmark routes under /posts
 router.use('/posts', featureRoutes); // Feature routes under /posts
 router.use('/posts', statsRoutes); // Stats routes under /posts
 router.use('/users', userRoutes); // User and follow routes

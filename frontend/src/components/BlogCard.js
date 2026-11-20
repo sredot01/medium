@@ -1,3 +1,4 @@
+import { useToast } from '../context/ToastContext';
 import DOMPurify from 'dompurify';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -15,9 +16,10 @@ function isPreviewImage(source) {
   }
 }
 
-export default function BlogCard({ post }) {
+export default function BlogCard({ post, saved = false, onBookmarkRemoved }) {
+  const notify = useToast();
   const { isAuthenticated } = useAuth();
-  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(saved);
   const [bookmarking, setBookmarking] = useState(false);
   const [featured, setFeatured] = useState(post.featured || false);
   const [featuring, setFeaturing] = useState(false);
@@ -36,10 +38,10 @@ export default function BlogCard({ post }) {
 
   useEffect(() => {
     if (isAuthenticated && post.id) {
-      checkIfBookmarked();
+      if (!saved) checkIfBookmarked();
       checkIfFeatured();
     }
-  }, [post.id, isAuthenticated]);
+  }, [post.id, isAuthenticated, saved]);
 
   const checkIfBookmarked = async () => {
     try {
@@ -61,12 +63,15 @@ export default function BlogCard({ post }) {
       if (bookmarked) {
         await removeBookmark(post.id);
         setBookmarked(false);
+        notify('Bookmark removed');
+        onBookmarkRemoved?.();
       } else {
         await bookmarkPost(post.id);
         setBookmarked(true);
+        notify('Story bookmarked');
       }
     } catch (error) {
-      console.error('Error toggling bookmark:', error);
+      notify(error.response?.data?.message || 'Could not update the bookmark.', 'error');
     } finally {
       setBookmarking(false);
     }
@@ -208,6 +213,7 @@ export default function BlogCard({ post }) {
               {/* Bookmark */}
               <button 
                 onClick={handleBookmark}
+                aria-pressed={bookmarked}
                 disabled={!isAuthenticated || bookmarking}
                 className={`p-1 transition-colors ${
                   bookmarked 

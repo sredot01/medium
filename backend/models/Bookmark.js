@@ -1,10 +1,11 @@
+const { randomUUID } = require('node:crypto');
 const { getDB, saveDatabase } = require('../config/database');
 
 class Bookmark {
   // Create a bookmark
   static create(userId, postId) {
     const db = getDB();
-    const id = Date.now().toString();
+    const id = randomUUID();
     const now = new Date().toISOString();
 
     try {

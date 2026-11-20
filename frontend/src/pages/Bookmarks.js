@@ -7,14 +7,13 @@ import Sidebar from '../components/Sidebar';
 import BlogCard from '../components/BlogCard';
 
 export default function Bookmarks() {
-  const { isAuthenticated, loading: authLoading, user } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
+  const [failed, setFailed] = useState(false);
 
-  console.log('Bookmarks - Current user:', user);
-  console.log('Bookmarks - Is authenticated:', isAuthenticated);
 
   // Redirect to landing if not authenticated
   useEffect(() => {
@@ -32,17 +31,14 @@ export default function Bookmarks() {
   const fetchBookmarks = async () => {
     try {
       setLoading(true);
+      setFailed(false);
       const response = await getUserBookmarks();
-      console.log('Bookmarks API Response:', response);
-      console.log('Bookmarks data:', response.data);
-      console.log('Bookmarks array:', response.data.data);
       const bookmarks = response.data.data || [];
-      console.log('Final bookmarks:', bookmarks);
       setBookmarkedPosts(bookmarks);
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
       console.error('Error details:', error.response?.data);
-      setBookmarkedPosts([]);
+      setFailed(true);
     } finally {
       setLoading(false);
     }
@@ -59,17 +55,17 @@ export default function Bookmarks() {
         onSearch={() => {}}
       />
       
-      <div className="flex relative">
+      <div className="relative flex pt-14">
         {/* Left Sidebar */}
         <Sidebar isOpen={sidebarOpen} />
 
         {/* Main Content */}
         <main 
-          className={`flex-1 transition-all duration-300 ${
-            sidebarOpen ? 'ml-[240px]' : 'ml-0'
+          className={`min-w-0 flex-1 transition-all duration-300 ${
+            sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
           }`}
         >
-          <div className="max-w-[728px] mx-auto px-6 py-8">
+          <div className="max-w-[728px] mx-auto px-4 py-8 sm:px-6">
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -85,10 +81,15 @@ export default function Bookmarks() {
               <div className="flex justify-center items-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
               </div>
+            ) : failed ? (
+              <div role="alert" className="py-12 text-center">
+                <p>Could not load your bookmarks.</p>
+                <button type="button" onClick={fetchBookmarks} className="mt-3 text-sm text-green-600 underline">Try again</button>
+              </div>
             ) : bookmarkedPosts.length > 0 ? (
               <div className="space-y-6">
                 {bookmarkedPosts.map((post) => (
-                  <BlogCard key={post.id} post={post} />
+                  <BlogCard key={post.id} post={post} saved onBookmarkRemoved={() => setBookmarkedPosts(current => current.filter(item => item.id !== post.id))} />
                 ))}
               </div>
             ) : (

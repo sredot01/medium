@@ -43,6 +43,8 @@ export default function ViewPost() {
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarking, setBookmarking] = useState(false);
+  const [shareLink, setShareLink] = useState('');
 
   useEffect(() => {
     if (slug) fetchPost();
@@ -187,18 +189,35 @@ export default function ViewPost() {
   };
 
   const handleBookmark = async () => {
-    if (!isAuthenticated || !post) return;
-    
+    if (!isAuthenticated || !post || bookmarking) return;
+    setBookmarking(true);
     try {
-      if (bookmarked) {
-        await removeBookmark(post.id);
-        setBookmarked(false);
-      } else {
-        await bookmarkPost(post.id);
-        setBookmarked(true);
-      }
+      if (bookmarked) await removeBookmark(post.id);
+      else await bookmarkPost(post.id);
+      setBookmarked(!bookmarked);
+      notify(bookmarked ? 'Bookmark removed' : 'Story bookmarked');
     } catch (error) {
-      console.error('Error toggling bookmark:', error);
+      notify(error.response?.data?.message || 'Could not update the bookmark.', 'error');
+    } finally {
+      setBookmarking(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = new URL('/post/' + encodeURIComponent(post.slug), window.location.origin).href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: post.title, url });
+        return;
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      notify('Story link copied');
+    } catch {
+      setShareLink(url);
     }
   };
 
@@ -364,6 +383,8 @@ export default function ViewPost() {
               
               {isAuthenticated && <button
                 onClick={handleBookmark}
+                disabled={bookmarking}
+                aria-pressed={bookmarked}
                 className="p-2 hover:bg-gray-100 rounded-full transition"
                 title={bookmarked ? 'Remove bookmark' : 'Bookmark'}
               >
@@ -381,7 +402,7 @@ export default function ViewPost() {
                   />
                 </svg>
               </button>}
-              <button className="p-2 hover:bg-gray-100 rounded-full">
+              <button type="button" aria-label="Share story" title="Share story" onClick={handleShare} className="p-2 hover:bg-gray-100 rounded-full">
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -393,6 +414,16 @@ export default function ViewPost() {
               </button>
             </div>
           </div>
+
+          {shareLink && (
+            <div className="mb-6 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 p-4">
+              <label className="min-w-0 flex-1 text-sm">Copy story link
+                <input autoFocus readOnly value={shareLink} onFocus={event => event.target.select()}
+                  className="mt-1 block w-full rounded border border-gray-300 bg-white p-2" />
+              </label>
+              <button type="button" className="text-sm" onClick={() => setShareLink('')}>Close</button>
+            </div>
+          )}
 
           {/* Cover Image */}
           {post.coverImage && post.coverImage.length > 0 && (

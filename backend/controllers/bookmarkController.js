@@ -51,11 +51,9 @@ exports.removeBookmark = (req, res, next) => {
 exports.getUserBookmarks = (req, res, next) => {
   try {
     const userId = req.user.id;
-    console.log('Fetching bookmarks for user:', userId);
 
     const bookmarks = Bookmark.getUserBookmarks(userId);
-    console.log('Found bookmarks:', bookmarks.length);
-    console.log('Bookmarks data:', JSON.stringify(bookmarks, null, 2));
+    res.set('Cache-Control', 'no-store');
 
     res.json({
       success: true,
