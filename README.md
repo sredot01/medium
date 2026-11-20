@@ -361,4 +361,4 @@ Cloudflare Workers AI is the default when the Worker AI binding is present. Conf
 | `OLLAMA_MODEL` | Model installed on that Ollama server |
 | `OLLAMA_API_KEY` | Optional bearer credential for the configured Ollama server, stored as a secret |
 
-A deployed Worker needs an Ollama origin it can reach. Keep that service authenticated if exposed to the internet. AI calls share a rolling limit of 10 requests per account per hour and 200 requests across the app per 24 hours.
+A deployed Worker needs an Ollama origin it can reach. Keep that service authenticated if exposed to the internet. AI calls share a rolling limit of 10 requests per account per hour and 200 requests across the app per 24 hours. Gemini also has a shared budget of 264,000 input and output tokens per rolling 24 hours. The app selects providers automatically, starting with Cloudflare Workers AI when available.
