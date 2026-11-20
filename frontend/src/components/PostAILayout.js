@@ -1,4 +1,6 @@
 export default function PostAILayout({ assistant, children, writing = false }) {
+  if (!assistant) return <div className="mx-auto w-full max-w-3xl px-4 pt-8 sm:px-6">{children}</div>;
+
   const columns = writing
     ? 'max-w-[1440px] xl:grid-cols-[minmax(0,1fr)_23rem]'
     : 'max-w-6xl xl:grid-cols-[minmax(0,1fr)_18rem]';

@@ -30,7 +30,7 @@ export default function ViewPost() {
   const confirm = useConfirm();
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading, user } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
@@ -43,18 +43,24 @@ export default function ViewPost() {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
 
-  // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate('/');
-    }
-  }, [isAuthenticated, authLoading, navigate]);
+    if (slug) fetchPost();
+  }, [slug]);
 
   useEffect(() => {
-    if (isAuthenticated && slug) {
-      fetchPost();
-    }
-  }, [slug, isAuthenticated]);
+    if (!post?.id) return;
+    fetchLikes(post.id);
+    if (isAuthenticated) checkIfBookmarked(post.id);
+    else setBookmarked(false);
+  }, [post?.id, isAuthenticated, user?.id]);
+
+  useEffect(() => {
+    if (!post?.id) return;
+    const timer = setTimeout(() => {
+      recordRead(post.id).catch(err => console.error('Error recording read:', err));
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [post?.id]);
 
   const fetchPost = async () => {
     try {
@@ -67,14 +73,7 @@ export default function ViewPost() {
         // Record view immediately
         recordView(postData.id).catch(err => console.error('Error recording view:', err));
         
-        // Record read after 30 seconds (if user is still reading)
-        setTimeout(() => {
-          recordRead(postData.id).catch(err => console.error('Error recording read:', err));
-        }, 30000); // 30 seconds
-        
-        fetchLikes(postData.id);
         fetchComments(postData.id);
-        checkIfBookmarked(postData.id);
       }
     } catch (error) {
       console.error('Error fetching post:', error);
@@ -112,7 +111,7 @@ export default function ViewPost() {
   };
 
   const handleLike = async () => {
-    if (!post) return;
+    if (!isAuthenticated || !post) return;
     
     try {
       if (liked) {
@@ -131,7 +130,7 @@ export default function ViewPost() {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!newComment.trim() || !post) return;
+    if (!isAuthenticated || !newComment.trim() || !post) return;
     
     try {
       setSubmittingComment(true);
@@ -186,7 +185,7 @@ export default function ViewPost() {
   };
 
   const handleBookmark = async () => {
-    if (!post) return;
+    if (!isAuthenticated || !post) return;
     
     try {
       if (bookmarked) {
@@ -224,10 +223,10 @@ export default function ViewPost() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-        <Sidebar isOpen={sidebarOpen} />
+        <Header onMenuClick={isAuthenticated ? () => setSidebarOpen(!sidebarOpen) : undefined} />
+        {isAuthenticated && <Sidebar isOpen={sidebarOpen} />}
         <div className={`flex justify-center items-center h-[calc(100vh-200px)] transition-all duration-300 ${
-          sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
+          isAuthenticated && sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
         }`}>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
@@ -238,14 +237,14 @@ export default function ViewPost() {
   if (!post) {
     return (
       <div className="min-h-screen bg-white">
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-        <Sidebar isOpen={sidebarOpen} />
+        <Header onMenuClick={isAuthenticated ? () => setSidebarOpen(!sidebarOpen) : undefined} />
+        {isAuthenticated && <Sidebar isOpen={sidebarOpen} />}
         <div className={`flex justify-center items-center h-[calc(100vh-200px)] transition-all duration-300 ${
-          sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
+          isAuthenticated && sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'
         }`}>
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Post not found</h2>
-            <Link to="/home" className="text-green-600 hover:text-green-700">
+            <Link to={isAuthenticated ? "/home" : "/"} className="text-green-600 hover:text-green-700">
               ← Back to home
             </Link>
           </div>
@@ -256,12 +255,12 @@ export default function ViewPost() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-      <Sidebar isOpen={sidebarOpen} />
+      <Header onMenuClick={isAuthenticated ? () => setSidebarOpen(!sidebarOpen) : undefined} />
+      {isAuthenticated && <Sidebar isOpen={sidebarOpen} />}
 
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'} pt-14`}>
+      <div className={`transition-all duration-300 ${isAuthenticated && sidebarOpen ? 'lg:ml-[240px]' : 'ml-0'} pt-14`}>
         {/* Article Container */}
-        <PostAILayout assistant={<PostAI key={post.slug} slug={post.slug} />}>
+        <PostAILayout assistant={isAuthenticated ? <PostAI key={post.slug} slug={post.slug} /> : null}>
         <article className="mx-auto max-w-3xl pb-12 xl:pt-12">
           {/* Title */}
           <h1 className="text-5xl font-bold text-gray-900 mb-4 leading-tight">
@@ -301,6 +300,7 @@ export default function ViewPost() {
               {/* Like Button */}
               <button
                 onClick={handleLike}
+                disabled={!isAuthenticated}
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition"
               >
                 <svg
@@ -360,7 +360,7 @@ export default function ViewPost() {
                 </>
               )}
               
-              <button
+              {isAuthenticated && <button
                 onClick={handleBookmark}
                 className="p-2 hover:bg-gray-100 rounded-full transition"
                 title={bookmarked ? 'Remove bookmark' : 'Bookmark'}
@@ -378,7 +378,7 @@ export default function ViewPost() {
                     d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
                   />
                 </svg>
-              </button>
+              </button>}
               <button className="p-2 hover:bg-gray-100 rounded-full">
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -436,7 +436,7 @@ export default function ViewPost() {
             </h3>
 
             {/* Comment Form */}
-            <form onSubmit={handleCommentSubmit} className="mb-8">
+            {isAuthenticated ? <form onSubmit={handleCommentSubmit} className="mb-8">
               <div className="flex items-start space-x-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
                   {user?.name?.charAt(0) || 'U'}
@@ -467,7 +467,7 @@ export default function ViewPost() {
                   </div>
                 </div>
               </div>
-            </form>
+            </form> : <p className="mb-8 text-sm"><Link className="text-green-600 underline" to="/">Sign in</Link> to respond.</p>}
 
             {/* Comments List */}
             <div className="space-y-6">

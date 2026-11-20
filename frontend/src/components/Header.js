@@ -55,6 +55,7 @@ export default function Header({ onMenuClick, onSearch }) {
       <div className="flex items-center justify-between h-full gap-3 px-3 sm:px-4 md:px-6">
         {/* Left Section */}
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
+          {onMenuClick && <>
           {/* Hamburger Menu Icon */}
           <button
             onClick={onMenuClick}
@@ -65,9 +66,10 @@ export default function Header({ onMenuClick, onSearch }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
+          </>}
 
           {/* Medium Logo */}
-          <Link to="/home" className="flex items-center">
+          <Link to={user ? "/home" : "/"} className="flex items-center">
             <span className="font-spectral text-2xl font-bold tracking-tight text-gray-900">Medium</span>
           </Link>
 
@@ -100,6 +102,7 @@ export default function Header({ onMenuClick, onSearch }) {
         {/* Right Section */}
         <div className="relative flex shrink-0 items-center gap-2 sm:gap-4">
           <ThemeMenu />
+          {user ? <>
           {/* Write Button */}
           <Link
             to="/create"
@@ -210,6 +213,7 @@ export default function Header({ onMenuClick, onSearch }) {
               </div>
             )}
           </div>
+          </> : <Link className="text-sm font-medium text-green-600" to="/">Sign in</Link>}
         </div>
       </div>
     </header>
