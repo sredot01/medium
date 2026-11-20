@@ -1,5 +1,6 @@
+import { insertPostImage, postImagesFit, postImageTypes, readPostImage } from '../utils/postImage';
 import { useToast } from '../context/ToastContext';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import PostAI, { appendDraft } from '../components/PostAI';
 import PostAILayout from '../components/PostAILayout';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,6 +11,8 @@ import 'react-quill/dist/quill.snow.css';
 
 export default function EditPost() {
   const notify = useToast();
+  const quillRef = useRef(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -73,18 +76,26 @@ export default function EditPost() {
     }
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      setCoverImage(await readPostImage(file));
+    } catch (error) {
+      notify(error.message, 'error');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
   const handlePublish = async () => {
+    if (uploadingImage) return;
+    if (!postImagesFit(content, coverImage)) {
+      notify('This story is too large. Remove an image or use smaller images.', 'error');
+      return;
+    }
     if (!title.trim()) {
       notify('Please enter a title', 'error');
       return;
@@ -124,16 +135,42 @@ export default function EditPost() {
     }
   };
 
-  const modules = {
-    toolbar: [
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
       [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ list: 'ordered' }, { list: 'bullet' }],
       ['blockquote', 'code-block'],
       ['link', 'image'],
       ['clean'],
-    ],
-  };
+      ],
+      handlers: {
+        image() {
+          const editor = quillRef.current?.getEditor();
+          if (!editor) return;
+          const index = editor.getSelection()?.index ?? editor.getLength() - 1;
+          const picker = document.createElement('input');
+          picker.type = 'file';
+          picker.accept = postImageTypes;
+          picker.onchange = async () => {
+            const file = picker.files?.[0];
+            if (!file) return;
+            setUploadingImage(true);
+            try {
+              const data = await readPostImage(file);
+              if (quillRef.current?.getEditor() === editor) insertPostImage(editor, data, index);
+            } catch (error) {
+              notify(error.message, 'error');
+            } finally {
+              setUploadingImage(false);
+            }
+          };
+          picker.click();
+        }
+      }
+    }
+  }), [notify]);
 
   if (loading) {
     return (
@@ -172,7 +209,9 @@ export default function EditPost() {
       />
 
       {/* Content Editor */}
+      {uploadingImage && <p role="status" className="mb-2 text-sm text-gray-600">Preparing image…</p>}
       <ReactQuill
+        ref={quillRef}
         theme="snow"
         value={content}
         onChange={setContent}
@@ -216,7 +255,7 @@ export default function EditPost() {
                       <input
                         type="file"
                         onChange={handleImageUpload}
-                        accept="image/*"
+                        accept={postImageTypes}
                         className="hidden"
                       />
                       <div className="flex flex-col items-center justify-center h-full">
@@ -290,6 +329,7 @@ export default function EditPost() {
                 <div className="flex space-x-4">
                   <button
                     onClick={handlePublish}
+                    disabled={uploadingImage}
                     className="flex-1 px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 transition font-medium"
                   >
                     Update story
