@@ -90,3 +90,7 @@ export const getUserStatsByDateRange = (userId, startDate, endDate) =>
   api.get(`/users/${userId}/stats/range?startDate=${startDate}&endDate=${endDate}`);
 
 export default api;
+
+export const getAIProviders = () => api.get('/ai/providers');
+export const generatePostDraft = (data) => api.post('/ai/draft', data, { timeout: 30000 });
+export const summarizePost = (data) => api.post('/ai/summary', data, { timeout: 30000 });

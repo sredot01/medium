@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import PostAI from '../components/PostAI';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { format, parseISO, isValid } from 'date-fns';
@@ -400,6 +401,8 @@ export default function ViewPost() {
               />
             </div>
           )}
+
+          <PostAI key={post.slug} slug={post.slug} />
 
           {/* Content */}
           <div

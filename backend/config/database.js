@@ -53,6 +53,16 @@ async function initializeDatabase(database) {
       )
     `);
 
+    db.run(`
+      CREATE TABLE IF NOT EXISTS ai_requests (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )
+    `);
+    db.run('CREATE INDEX IF NOT EXISTS idx_ai_requests_date ON ai_requests(created_at)');
+    db.run('CREATE INDEX IF NOT EXISTS idx_ai_requests_user_date ON ai_requests(user_id, created_at)');
+
     // Create posts table (updated with user_id and featured)
     db.run(`
       CREATE TABLE IF NOT EXISTS posts (

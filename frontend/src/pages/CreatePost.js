@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import PostAI, { appendDraft } from '../components/PostAI';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.bubble.css';
@@ -435,6 +436,7 @@ export default function CreatePost() {
 
           {/* Story Content */}
           <div className="mt-8">
+            <PostAI onInsert={draft => setFormData(current => ({ ...current, content: appendDraft(current.content, draft) }))} />
             <ReactQuill
               ref={quillRef}
               theme="bubble"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PostAI, { appendDraft } from '../components/PostAI';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPostById, updatePost } from '../api/api';
 import { useAuth } from '../context/AuthContext';
@@ -167,6 +168,7 @@ export default function EditPost() {
       />
 
       {/* Content Editor */}
+      <PostAI onInsert={draft => setContent(current => appendDraft(current, draft))} />
       <ReactQuill
         theme="snow"
         value={content}

@@ -346,3 +346,19 @@ MIT License - feel free to use this project for learning and development.
 ---
 
 **Built with ❤️ using React.js and Node.js**
+
+## AI writing and summaries
+
+Signed-in users can draft text on the new and edit post pages and summarize a published post from its reading page. Generated drafts are previewed before being appended to the editor.
+
+Set provider configuration on the backend or in Cloudflare Worker bindings:
+
+| Setting | Purpose |
+| --- | --- |
+| `GEMINI_API_KEY` | Gemini API key, stored as a secret |
+| `GEMINI_MODEL` | Optional Gemini model, defaults to `gemini-2.5-flash` |
+| `OLLAMA_BASE_URL` | Ollama server origin, e.g. `http://localhost:11434` for local development |
+| `OLLAMA_MODEL` | Model installed on that Ollama server |
+| `OLLAMA_API_KEY` | Optional bearer credential for the configured Ollama server, stored as a secret |
+
+A deployed Worker needs an Ollama origin it can reach. Keep that service authenticated if exposed to the internet. AI calls share a rolling limit of 10 requests per account per hour and 200 requests across the app per 24 hours.
