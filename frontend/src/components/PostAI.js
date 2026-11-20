@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { generatePostDraft, getAIProviders, summarizePost } from '../api/api';
 
-const providerNames = { gemini: 'Gemini', ollama: 'Ollama' };
+const providerNames = { cloudflare: 'Cloudflare Workers AI', gemini: 'Gemini', ollama: 'Ollama' };
 
 export default function PostAI({ slug, onInsert }) {
   const drafting = !slug;

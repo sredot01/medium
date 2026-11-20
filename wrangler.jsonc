@@ -10,6 +10,7 @@
     "NODE_ENV": "production",
     "APP_ORIGIN": "https://techblog-medium.sredeepak01.workers.dev"
   },
+  "ai": { "binding": "AI" },
   "assets": {
     "directory": "./frontend/build",
     "binding": "ASSETS",

@@ -9,6 +9,7 @@ const handler = httpServerHandler(createServer(app));
 export class BlogDatabase extends DurableObject {
   constructor(ctx, bindings) {
     super(ctx, bindings);
+    app.locals.workersAI = bindings.AI;
     const sql = ctx.storage.sql;
     ctx.blockConcurrencyWhile(() => database.initializeDatabase({
       run(query, parameters = []) {

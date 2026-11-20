@@ -24,9 +24,18 @@ function reserveRequest(userId) {
   return allowed;
 }
 
-function providers() {
+function providers(workersAI) {
   const { GEMINI_API_KEY, GEMINI_MODEL, OLLAMA_BASE_URL, OLLAMA_MODEL, OLLAMA_API_KEY } = process.env;
   const configured = {};
+  if (workersAI) {
+    configured.cloudflare = async (instruction, input, maxTokens) => {
+      const data = await workersAI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+        messages: [{ role: 'system', content: instruction }, { role: 'user', content: input }],
+        max_tokens: maxTokens
+      });
+      return data.response;
+    };
+  }
   if (GEMINI_API_KEY) {
     const model = encodeURIComponent(GEMINI_MODEL || 'gemini-3.1-flash-lite');
     configured.gemini = async (instruction, input, maxTokens) => {
@@ -83,7 +92,7 @@ async function request(url, headers, body) {
 }
 
 async function generate(req, res, instruction, input, maxTokens) {
-  const configured = providers();
+  const configured = providers(req.app.locals.workersAI);
   const provider = req.body?.provider ?? Object.keys(configured)[0];
   if (typeof provider !== 'string' || !Object.hasOwn(configured, provider)) {
     return res.status(503).json({ message: 'That AI provider is unavailable.' });
@@ -112,7 +121,7 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get('/providers', (req, res) => res.json({ data: Object.keys(providers()) }));
+router.get('/providers', (req, res) => res.json({ data: Object.keys(providers(req.app.locals.workersAI)) }));
 
 router.post('/draft', (req, res) => {
   const prompt = typeof req.body?.prompt === 'string' ? req.body.prompt.trim() : '';

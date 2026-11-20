@@ -351,7 +351,7 @@ MIT License - feel free to use this project for learning and development.
 
 Signed-in users can draft text on the new and edit post pages and summarize a published post from its reading page. Generated drafts are previewed before being appended to the editor.
 
-Set provider configuration on the backend or in Cloudflare Worker bindings:
+Cloudflare Workers AI is the default when the Worker AI binding is present. Configure the optional Gemini and Ollama providers with backend environment variables or Worker bindings:
 
 | Setting | Purpose |
 | --- | --- |
