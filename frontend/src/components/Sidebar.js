@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen }) {
   return (
     <aside
       className={`
-        fixed left-0 top-14 h-[calc(100dvh-3.5rem)] w-[240px]
+        site-sidebar fixed left-0 top-14 h-[calc(100dvh-3.5rem)] w-[240px]
         border-r border-gray-200 bg-white overflow-y-auto z-30
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -58,7 +58,7 @@ export default function Sidebar({ isOpen }) {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm ${
+              className={`site-nav-link flex items-center space-x-3 px-3 py-2 rounded-md text-sm ${
                 location.pathname === item.path
                   ? 'text-gray-900 font-medium'
                   : 'text-gray-600 hover:text-gray-900'

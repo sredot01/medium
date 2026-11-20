@@ -51,7 +51,7 @@ export default function Header({ onMenuClick, onSearch }) {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 h-14">
+    <header className="site-header fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 h-14">
       <div className="flex items-center justify-between h-full gap-3 px-3 sm:px-4 md:px-6">
         {/* Left Section */}
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">

@@ -84,7 +84,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="home-feed min-h-screen bg-white">
       <Header 
         onMenuClick={() => setSidebarOpen(!sidebarOpen)} 
         onSearch={handleSearch}
@@ -102,10 +102,11 @@ export default function Home() {
         >
           <div className="mx-auto max-w-[728px] px-4 sm:px-6 lg:px-8">
             {/* Tabs */}
-            <div className="border-b border-gray-200 sticky top-14 bg-white z-10">
+            <div className="feed-tabs border-b border-gray-200 sticky top-14 bg-white z-10">
               <div className="flex gap-8">
                 <button
                   onClick={() => setSelectedTab('for-you')}
+                  aria-pressed={selectedTab === 'for-you'}
                   className={`py-4 text-sm font-medium border-b-2 transition-colors ${
                     selectedTab === 'for-you'
                       ? 'border-gray-900 text-gray-900'
@@ -116,6 +117,7 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => setSelectedTab('featured')}
+                  aria-pressed={selectedTab === 'featured'}
                   className={`py-4 text-sm font-medium border-b-2 transition-colors ${
                     selectedTab === 'featured'
                       ? 'border-gray-900 text-gray-900'

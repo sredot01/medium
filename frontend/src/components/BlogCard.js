@@ -103,7 +103,7 @@ export default function BlogCard({ post }) {
   };
 
   return (
-    <article className="py-6 border-b border-gray-200 fade-in">
+    <article className="feed-story py-6 border-b border-gray-200 fade-in">
       <div className="flex items-start space-x-4">
         {/* Left: Content */}
         <div className="flex-1 min-w-0">

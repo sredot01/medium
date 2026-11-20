@@ -61,7 +61,7 @@ export default function RightSidebar() {
   };
 
   return (
-    <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-80 shrink-0 self-start overflow-y-auto px-6 py-8 xl:block 2xl:w-[368px] 2xl:px-8 border-l border-gray-200 bg-white">
+    <aside className="site-right-rail sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-80 shrink-0 self-start overflow-y-auto px-6 py-8 xl:block 2xl:w-[368px] 2xl:px-8 border-l border-gray-200 bg-white">
       {/* Staff Picks */}
       <div className="mb-8">
         <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide mb-4">
@@ -116,7 +116,7 @@ export default function RightSidebar() {
       </div>
 
       {/* Start Writing */}
-      <div className="bg-gray-50 rounded-lg p-5 mb-8 border border-gray-200">
+      <div className="writing-callout bg-gray-50 rounded-lg p-5 mb-8 border border-gray-200">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">
           Start Writing
         </h3>
