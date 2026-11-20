@@ -356,7 +356,7 @@ Set provider configuration on the backend or in Cloudflare Worker bindings:
 | Setting | Purpose |
 | --- | --- |
 | `GEMINI_API_KEY` | Gemini API key, stored as a secret |
-| `GEMINI_MODEL` | Optional Gemini model, defaults to `gemini-2.5-flash` |
+| `GEMINI_MODEL` | Optional Gemini model, defaults to `gemini-3.1-flash-lite` |
 | `OLLAMA_BASE_URL` | Ollama server origin, e.g. `http://localhost:11434` for local development |
 | `OLLAMA_MODEL` | Model installed on that Ollama server |
 | `OLLAMA_API_KEY` | Optional bearer credential for the configured Ollama server, stored as a secret |
