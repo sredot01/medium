@@ -98,6 +98,12 @@ export default function Landing() {
           ) : <p>Check back for the next story.</p>}
         </section>
       </main>
+      <footer className="border-t border-[var(--theme-line)]">
+        <nav aria-label="Legal" className="editorial-shell flex flex-wrap gap-6 py-6 text-sm">
+          <Link className="hover:underline" to="/privacy">Privacy Policy</Link>
+          <Link className="hover:underline" to="/terms">Terms of Service</Link>
+        </nav>
+      </footer>
       {signup && <AuthModal isOpen mode="signup" onClose={() => setSignup(false)} />}
     </div>
   );
