@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { format, parseISO, isValid } from 'date-fns';
 import { bookmarkPost, removeBookmark, checkBookmark, featurePost, unfeaturePost, checkFeatured } from '../api/api';
 import { useAuth } from '../context/AuthContext';
+
+function isPreviewImage(source) {
+  if (!source) return false;
+  if (/^data:/i.test(source)) return /^data:image\/(?:png|jpe?g|gif|webp|avif|bmp);base64,/i.test(source);
+  try {
+    return ['http:', 'https:'].includes(new URL(source, window.location.origin).protocol);
+  } catch {
+    return false;
+  }
+}
 
 export default function BlogCard({ post }) {
   const { isAuthenticated } = useAuth();
@@ -10,6 +21,18 @@ export default function BlogCard({ post }) {
   const [bookmarking, setBookmarking] = useState(false);
   const [featured, setFeatured] = useState(post.featured || false);
   const [featuring, setFeaturing] = useState(false);
+
+  const [failedImages, setFailedImages] = useState([]);
+  const previewImages = useMemo(() => {
+    const fragment = DOMPurify.sanitize(post.content || '', {
+      ALLOWED_TAGS: ['img'],
+      ALLOWED_ATTR: ['src'],
+      RETURN_DOM_FRAGMENT: true
+    });
+    const sources = [post.coverImage, ...Array.from(fragment.querySelectorAll('img'), image => image.getAttribute('src'))];
+    return [...new Set(sources.filter(isPreviewImage))];
+  }, [post.coverImage, post.content]);
+  const previewImage = previewImages.find(source => !failedImages.includes(source));
 
   useEffect(() => {
     if (isAuthenticated && post.id) {
@@ -213,21 +236,12 @@ export default function BlogCard({ post }) {
           </div>
         </div>
 
-        {/* Right: Image */}
-        {post.coverImage && post.coverImage.length > 0 && (
-          <Link to={`/post/${post.slug}`} className="flex-shrink-0">
-            <div className="h-20 w-20 bg-gray-100 sm:h-28 sm:w-28 rounded overflow-hidden">
-              <img
-                src={post.coverImage}
-                alt={post.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  console.error('Image failed to load:', post.title);
-                  console.error('Image src:', post.coverImage?.substring(0, 100));
-                  e.target.onerror = null;
-                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="112" height="112"%3E%3Crect fill="%23e5e7eb" width="112" height="112"/%3E%3Ctext fill="%239ca3af" font-size="14" font-family="Arial" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
-                }}
-              />
+        {previewImage && (
+          <Link to={`/post/${post.slug}`} aria-label={`Read ${post.title}`} className="shrink-0">
+            <div className="h-20 w-24 overflow-hidden rounded bg-gray-100 sm:h-28 sm:w-36">
+              <img key={previewImage} src={previewImage} alt="" loading="lazy" decoding="async"
+                className="h-full w-full object-cover"
+                onError={() => setFailedImages(current => [...current, previewImage])} />
             </div>
           </Link>
         )}
