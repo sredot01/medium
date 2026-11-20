@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:3000',
   process.env.FRONTEND_URL,
+  process.env.GOOGLE_APP_ORIGIN,
   // Add your Netlify URL here after deployment
 ].filter(Boolean);
 
