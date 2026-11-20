@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser');
+const google = require('../controllers/googleAuthController');
 const github = require('../controllers/githubAuthController');
 const email = require('../controllers/emailAuthController');
 const {
@@ -23,6 +24,11 @@ router.get('/github/status', github.status);
 router.get('/github/start', github.start);
 router.get('/github/callback', cookieParser(), github.callback);
 router.post('/github/exchange', cookieParser(), github.exchange);
+
+router.get('/google/status', google.status);
+router.get('/google/start', google.start);
+router.get('/google/callback', cookieParser(), google.callback);
+router.post('/google/exchange', cookieParser(), google.exchange);
 
 // Protected routes
 router.get('/me', protect, getMe);

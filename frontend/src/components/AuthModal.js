@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getGitHubLoginStatus, githubLoginUrl, requestSignup, requestPasswordReset } from '../api/api';
+import { getGitHubLoginStatus, githubLoginUrl, getGoogleLoginStatus, googleLoginUrl, requestSignup, requestPasswordReset } from '../api/api';
 
 const titles = { signin: 'Welcome back.', signup: 'Join TechBlog.', reset: 'Reset your password' };
 const actions = { signin: 'Sign in', signup: 'Send verification link', reset: 'Send reset link' };
@@ -14,6 +14,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode = 'signin
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(false);
   const [githubEnabled, setGitHubEnabled] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -26,6 +27,9 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode = 'signin
     getGitHubLoginStatus()
       .then(({ data }) => { if (active) setGitHubEnabled(data.enabled === true); })
       .catch(() => { if (active) setGitHubEnabled(false); });
+    getGoogleLoginStatus()
+      .then(({ data }) => { if (active) setGoogleEnabled(data.enabled === true); })
+      .catch(() => { if (active) setGoogleEnabled(false); });
     return () => { active = false; };
   }, [isOpen, initialMode]);
 
@@ -69,6 +73,11 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode = 'signin
       <button type="button" onClick={onClose} aria-label="Close sign-in dialog" className="absolute right-6 top-6 p-2 text-2xl text-gray-600">×</button>
       <div className="w-full max-w-[680px] px-6">
         <h2 id="auth-title" className="mb-8 text-center font-spectral text-[32px] font-bold text-gray-900">{titles[mode]}</h2>
+        {googleEnabled && mode !== 'reset' && (
+          <a href={googleLoginUrl} className="mb-3 block rounded-full border border-gray-300 px-4 py-3 text-center text-sm font-medium hover:bg-gray-50">
+            Continue with Google
+          </a>
+        )}
         {githubEnabled && mode !== 'reset' && (
           <a href={githubLoginUrl} className="mb-6 block rounded-full border border-gray-300 px-4 py-3 text-center text-sm font-medium hover:bg-gray-50">
             Continue with GitHub

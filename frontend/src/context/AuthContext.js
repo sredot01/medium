@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { login as loginAPI, logout as logoutAPI, getMe, exchangeGitHubSession } from '../api/api';
+import { login as loginAPI, logout as logoutAPI, getMe, exchangeGitHubSession, exchangeGoogleSession } from '../api/api';
 
 const AuthContext = createContext();
 
@@ -65,6 +65,13 @@ export const AuthProvider = ({ children }) => {
     setUser(user);
     setIsAuthenticated(true);
   }, []);
+  const completeGoogleLogin = useCallback(async () => {
+    const response = await exchangeGoogleSession();
+    const { user, token } = response.data.data;
+    localStorage.setItem('token', token);
+    setUser(user);
+    setIsAuthenticated(true);
+  }, []);
 
   const logout = async () => {
     try {
@@ -89,6 +96,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     completeGitHubLogin,
+    completeGoogleLogin,
     logout,
     updateUser,
   };

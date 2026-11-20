@@ -10,26 +10,28 @@ const messages = {
   failed: 'GitHub sign-in failed. Please try again.'
 };
 
-export default function GitHubComplete() {
-  const { completeGitHubLogin } = useAuth();
+export default function GitHubComplete({ google = false }) {
+  const { completeGitHubLogin, completeGoogleLogin } = useAuth();
   const { search } = useLocation();
   const navigate = useNavigate();
   const reason = new URLSearchParams(search).get('error');
   const [failed, setFailed] = useState(false);
 
+  const provider = google ? 'Google' : 'GitHub';
+  const completeLogin = google ? completeGoogleLogin : completeGitHubLogin;
   const exchange = useRef(null);
 
   useEffect(() => {
     if (reason) return;
-    exchange.current ??= completeGitHubLogin();
+    exchange.current ??= completeLogin();
     exchange.current
       .then(() => navigate('/home', { replace: true }))
       .catch(() => setFailed(true));
-  }, [reason, completeGitHubLogin, navigate]);
+  }, [reason, completeLogin, navigate]);
 
   return (
     <main className="mx-auto max-w-lg px-6 py-20" aria-live="polite">
-      <p>{failed || reason ? (Object.hasOwn(messages, reason) ? messages[reason] : messages.failed) : 'Finishing GitHub sign-in…'}</p>
+      <p>{failed || reason ? (Object.hasOwn(messages, reason) ? messages[reason] : messages.failed).replaceAll('GitHub', provider) : `Finishing ${provider} sign-in…`}</p>
       {(failed || reason) && <Link className="mt-4 inline-block underline" to="/">Back to the homepage</Link>}
     </main>
   );

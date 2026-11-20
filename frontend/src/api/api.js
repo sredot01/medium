@@ -19,6 +19,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export const getGoogleLoginStatus = () => api.get('/auth/google/status');
+export const googleLoginUrl = API_URL + '/auth/google/start';
+export const exchangeGoogleSession = () => api.post('/auth/google/exchange');
+
 // GitHub sign-in uses same-origin cookies for its callback and session handoff.
 export const getGitHubLoginStatus = () => api.get('/auth/github/status');
 export const githubLoginUrl = API_URL + '/auth/github/start';

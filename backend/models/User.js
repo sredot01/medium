@@ -36,11 +36,15 @@ class User {
     }
   }
 
-  static createGitHub({ id, email, name }) {
+  static createGitHub(data) {
+    return User.createOAuth(data);
+  }
+
+  static createOAuth({ id, email, name }) {
     const now = new Date().toISOString();
     getDB().run(
       'INSERT INTO users (id, email, password, name, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, email.toLowerCase(), 'github-oauth-only', name, now, now]
+      [id, email.toLowerCase(), id.startsWith('github:') ? 'github-oauth-only' : 'google-oauth-only', name, now, now]
     );
     saveDatabase();
     return User.findById(id);
@@ -115,7 +119,7 @@ class User {
 
   // Verify password
   static async verifyPassword(plainPassword, hashedPassword) {
-    if (hashedPassword === 'github-oauth-only') return false;
+    if (hashedPassword === id.startsWith('github:') ? 'github-oauth-only' : 'google-oauth-only') return false;
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 

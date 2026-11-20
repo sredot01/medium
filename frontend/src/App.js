@@ -33,6 +33,7 @@ function App() {
                 <Route path="/privacy" element={<LegalPage isPrivacy />} />
                 <Route path="/terms" element={<LegalPage />} />
                 <Route path="/signin" element={<SignIn />} />
+                <Route path="/auth/google/complete" element={<GitHubComplete google />} />
                 <Route path="/auth/github/complete" element={<GitHubComplete />} />
                 <Route path="/auth/email/signup" element={<EmailAuthComplete isSignup />} />
                 <Route path="/auth/email/reset" element={<EmailAuthComplete />} />
