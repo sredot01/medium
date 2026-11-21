@@ -5,6 +5,7 @@ import { format, isValid } from 'date-fns';
 import ThemeMenu from '../components/ThemeMenu';
 import AuthModal from '../components/AuthModal';
 import { useAuth } from '../context/AuthContext';
+import { papers, isResearchPost } from '../research';
 import { getAllPosts } from '../api/api';
 
 function StoryCard({ post, featured = false }) {
@@ -67,11 +68,20 @@ export default function Landing() {
 
   if (isAuthenticated) return <Navigate to="/home" replace />;
   const [featured, ...stories] = posts || [];
+  const supporting = stories.slice(0, 3);
+  const archive = stories.slice(3);
+  const researchPosts = (posts || []).filter(isResearchPost);
+  const paper = papers.find(([, , id]) => researchPosts.some(post =>
+    (post.content || '').includes('arxiv.org/abs/' + id)
+  )) || papers[0];
+  const [topic, paperTitle, paperId, paperSummary] = paper;
+  const companion = researchPosts.find(post => (post.content || '').includes('arxiv.org/abs/' + paperId));
+
 
   return (
     <div className="min-h-screen bg-[var(--theme-track)]">
       <header className="border-b border-[var(--theme-line)] bg-[var(--theme-panel)]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
+        <div className="editorial-shell publication-header">
           <Link to="/" className="font-spectral text-2xl font-bold sm:text-3xl">TechBlog</Link>
           <nav aria-label="Main" className="flex flex-wrap items-center justify-end gap-2 sm:gap-5">
             <a href="#stories" className="hidden text-sm font-medium hover:underline sm:inline">Stories</a>
@@ -83,28 +93,54 @@ export default function Landing() {
         </div>
       </header>
 
-      <main className="editorial-shell">
-        <div className="editorial-masthead editorial-masthead-accent">
-          <h1 className="font-spectral">Technology and the decisions behind it.</h1>
-          <p>Analysis for leaders making decisions about AI, software, and infrastructure.</p>
+      <main className="editorial-shell publication">
+        <div className="publication-intro">
+          <h1 className="font-spectral">AI, software & infrastructure</h1>
+          <p>Technology analysis for the people building and leading teams.</p>
         </div>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <Link className="landing-primary" to="/ai">Explore AI research</Link>
-            <a className="self-center text-sm font-semibold hover:underline" href="#stories">Browse stories ↓</a>
-          </div>
-        {featured && <StoryCard key={featured.id} post={featured} featured />}
 
-        <section id="stories" className="editorial-stories scroll-mt-5" aria-labelledby="stories-heading">
-          <h2 id="stories-heading" className="font-spectral text-3xl font-bold">{featured ? 'More to read' : 'Stories'}</h2>
-          {loadError ? <p role="status">Stories are temporarily unavailable.</p> : !posts ? (
-            <p role="status">Loading stories…</p>
-          ) : !posts.length ? <p>No stories have been published yet.</p> : stories.length ? (
-            stories.map(post => <StoryCard key={post.id} post={post} />)
-          ) : <p>Check back for the next story.</p>}
+        {loadError ? <p className="py-8" role="status">Stories are temporarily unavailable.</p> : !posts ? (
+          <p className="py-8" role="status">Loading stories…</p>
+        ) : featured ? (
+          <section id="stories" aria-label="Top stories" className={'publication-front ' + (supporting.length ? 'publication-front-split' : '')}>
+            <StoryCard key={featured.id} post={featured} featured />
+            {supporting.length > 0 && (
+              <aside className="publication-sidebar" aria-labelledby="more-stories">
+                <h2 id="more-stories" className="font-spectral text-2xl font-bold">More stories</h2>
+                {supporting.map(post => <StoryCard key={post.id} post={post} />)}
+              </aside>
+            )}
+          </section>
+        ) : <p className="py-8">No stories have been published yet.</p>}
+
+        <section className="publication-research" aria-labelledby="research-heading">
+          <div className="publication-section-heading">
+            <h2 id="research-heading" className="font-spectral text-3xl font-bold">AI Research</h2>
+            <Link to="/ai" className="publication-link">View paper library <span aria-hidden="true">↗</span></Link>
+          </div>
+          <div className="publication-paper">
+            <div>
+              <p className="editorial-label">{topic}</p>
+              <h3 className="font-spectral text-2xl font-semibold">{paperTitle}</h3>
+              <p className="editorial-excerpt">{paperSummary}</p>
+              <a className="publication-link mt-4 inline-block" href={'https://arxiv.org/abs/' + paperId}>Read the original paper <span aria-hidden="true">↗</span></a>
+            </div>
+            {companion && (
+              <div className="publication-companion">
+                <p className="editorial-label">TechBlog write-up</p>
+                <Link className="font-spectral text-2xl font-semibold hover:underline" to={'/post/' + encodeURIComponent(companion.slug)}>{companion.title}</Link>
+              </div>
+            )}
+          </div>
         </section>
+
+        {archive.length > 0 && <section className="editorial-stories" aria-labelledby="archive-heading">
+          <h2 id="archive-heading" className="font-spectral text-3xl font-bold">From the archive</h2>
+          {archive.map(post => <StoryCard key={post.id} post={post} />)}
+        </section>}
       </main>
       <footer className="border-t border-[var(--theme-line)]">
-        <nav aria-label="Legal" className="editorial-shell flex flex-wrap gap-6 py-6 text-sm">
+        <nav aria-label="Legal" className="editorial-shell publication-footer">
           <Link className="hover:underline" to="/privacy">Privacy Policy</Link>
           <Link className="hover:underline" to="/terms">Terms of Service</Link>
         </nav>
