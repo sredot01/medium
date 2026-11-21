@@ -4,7 +4,7 @@ import PostAI, { appendDraft } from '../components/PostAI';
 import PostAILayout from '../components/PostAILayout';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.bubble.css';
+import 'react-quill/dist/quill.snow.css';
 import { createPost } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -442,7 +442,7 @@ export default function CreatePost() {
           <div className="mt-8">
             <ReactQuill
               ref={quillRef}
-              theme="bubble"
+              theme="snow"
               value={formData.content}
               onChange={(content) => setFormData({ ...formData, content })}
               modules={modules}
