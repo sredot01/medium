@@ -2,6 +2,7 @@ import CommentThread from '../components/CommentThread';
 import { useConfirm } from '../context/ConfirmContext';
 import { useToast } from '../context/ToastContext';
 import DOMPurify from 'dompurify';
+import 'react-quill/dist/quill.snow.css';
 import PostAI from '../components/PostAI';
 import PostAILayout from '../components/PostAILayout';
 import React, { useEffect, useState } from 'react';
@@ -448,10 +449,12 @@ export default function ViewPost() {
 
 
           {/* Content */}
-          <div
-            className="prose prose-lg max-w-none mb-12"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
-          />
+          <div className="ql-container ql-snow published-story mb-12">
+            <div
+              className="ql-editor"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+            />
+          </div>
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (

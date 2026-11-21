@@ -193,7 +193,7 @@ export default function EditPost() {
 
   return (
     <PostAILayout writing assistant={<PostAI onInsert={draft => setContent(current => appendDraft(current, draft))} />}>
-    <div className="mx-auto max-w-4xl py-8">
+    <div className="mx-auto max-w-3xl py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <button

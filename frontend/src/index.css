@@ -722,3 +722,19 @@ h1, h2, h3, h4, h5, h6 {
   .publication-header { flex-wrap: wrap; gap: 0.55rem; }
   .publication-header nav { justify-content: flex-start; }
 }
+
+/* Match the article body in the Snow editor and the published view. */
+.writing-editor .ql-snow .ql-editor,
+.published-story.ql-snow .ql-editor {
+  padding-inline: 0;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.published-story.ql-snow .ql-editor {
+  min-height: 0;
+  height: auto;
+  padding-block: 0;
+}
