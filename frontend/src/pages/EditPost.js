@@ -1,4 +1,4 @@
-import { insertPostImage, postImagesFit, postImageTypes, readPostImage } from '../utils/postImage';
+import { insertPostImage, optimizePostImages, postImagesFit, postImageTypes, readPostImage } from '../utils/postImage';
 import { useToast } from '../context/ToastContext';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import PostAI, { appendDraft } from '../components/PostAI';
@@ -12,6 +12,7 @@ import 'react-quill/dist/quill.snow.css';
 export default function EditPost() {
   const notify = useToast();
   const quillRef = useRef(null);
+  const saving = useRef(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -91,11 +92,7 @@ export default function EditPost() {
   };
 
   const handlePublish = async () => {
-    if (uploadingImage) return;
-    if (!postImagesFit(content, coverImage)) {
-      notify('This story is too large. Remove an image or use smaller images.', 'error');
-      return;
-    }
+    if (uploadingImage || saving.current) return;
     if (!title.trim()) {
       notify('Please enter a title', 'error');
       return;
@@ -106,7 +103,19 @@ export default function EditPost() {
       return;
     }
 
+    saving.current = true;
     try {
+      let optimized;
+      try {
+        optimized = await optimizePostImages(content, coverImage);
+      } catch {
+        notify('An embedded image could not be compressed. Replace it using the image upload button.', 'error');
+        return;
+      }
+      if (!postImagesFit(optimized.content, optimized.coverImage)) {
+        notify('The article still exceeds 1.7 MB after compression. Remove an embedded image and retry.', 'error');
+        return;
+      }
       const tagsArray = tags
         .split(',')
         .map((tag) => tag.trim())
@@ -120,11 +129,11 @@ export default function EditPost() {
 
       const postData = {
         title,
-        content,
+        content: optimized.content,
         excerpt: cleanExcerpt,
         category: category || 'Uncategorized',
         tags: tagsArray,
-        coverImage: coverImage || '',
+        coverImage: optimized.coverImage,
       };
 
       await updatePost(id, postData);
@@ -132,6 +141,8 @@ export default function EditPost() {
     } catch (error) {
       console.error('Error updating post:', error);
       notify('Failed to update post', 'error');
+    } finally {
+      saving.current = false;
     }
   };
 

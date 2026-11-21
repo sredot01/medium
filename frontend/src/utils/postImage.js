@@ -49,3 +49,23 @@ export function insertPostImage(editor, data, index) {
   editor.insertEmbed(position, 'image', data, 'user');
   editor.setSelection(position + 1);
 }
+
+export async function optimizePostImages(content, coverImage = '') {
+  if (postImagesFit(content, coverImage)) return { content, coverImage };
+  const article = document.createElement('template');
+  article.innerHTML = content;
+
+  async function optimize(source) {
+    if (!/^data:image\/[a-z0-9.+-]+;base64,/i.test(source) || source.length <= maxDataLength) return source;
+    const blob = await (await fetch(source)).blob();
+    return readPostImage(blob);
+  }
+
+  for (const image of article.content.querySelectorAll('img[src]')) {
+    const source = image.getAttribute('src');
+    const optimized = await optimize(source);
+    if (optimized !== source) image.setAttribute('src', optimized);
+  }
+
+  return { content: article.innerHTML, coverImage: await optimize(coverImage) };
+}
